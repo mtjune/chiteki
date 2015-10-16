@@ -11,13 +11,13 @@ connection = pymysql.connect(host=setting['host'],
                              password=setting['password'],
                              db='rakuten_recipe',
                              charset='utf8mb4',
-                             cursorclass=pymysql.cursors.SSCursor)
+                             cursorclass=pymysql.cursors.DictCursor)
 
 try:
     with connection.cursor() as cursor:
         sql = "select recipe_id, title from recipes limit 50;"
         cursor.execute(sql)
-        for desc in cursor.description:
-            print(desc)
+        for row in cursor:
+            print(row['title'])
 finally:
     connection.close()
