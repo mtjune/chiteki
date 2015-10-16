@@ -8,7 +8,7 @@ with open('mysql_setting.yml', 'r') as f:
 
 connection = pymysql.connect(host=setting['host'],
                              user=setting['user'],
-                             password=setting.['password'],
+                             password=setting['password'],
                              db='rakuten_recipe',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
