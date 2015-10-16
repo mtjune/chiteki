@@ -15,7 +15,7 @@ connection = pymysql.connect(host=setting['host'],
 
 try:
     with connection.cursor() as cursor:
-        sql = "select recipe_id, title from recipes limit 50;"
+        sql = "select title from recipes limit 50;"
         cursor.execute(sql)
         for row in cursor:
             print(row['title'])

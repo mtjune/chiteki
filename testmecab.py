@@ -20,9 +20,6 @@ def mecabparse(text):
         words.append(word)
         features.append(feature.split(","))
 
-    print(words)
-    print(features)
-
     return words, features
 
 
