@@ -1,5 +1,8 @@
+# encoding: utf-8
+import MeCab
 import pymysql
 import yaml
+
 
 setting = None
 with open('mysql_setting.yml', 'r') as f:
@@ -11,13 +14,13 @@ connection = pymysql.connect(host=setting['host'],
                              password=setting['password'],
                              db='rakuten_recipe',
                              charset='utf8mb4',
-                             cursorclass=pymysql.cursors.SSCursor)
+                             cursorclass=pymysql.cursors.DictCursor)
 
 try:
-    with connection.cursor() as cursor:
+    with connection.cursor(pymysql.cursors.SSCursor) as cursor:
         sql = "select recipe_id, title from recipes limit 50;"
         cursor.execute(sql)
-        for desc in cursor.description:
-            print(desc)
+        result = cursor.fetchone()
+        print(result)
 finally:
     connection.close()
