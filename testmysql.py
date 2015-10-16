@@ -6,9 +6,9 @@ with open('mysql_setting.yml', 'r') as f:
     setting = yaml.load(f)
 
 
-connection = pymysql.connect(host=setting.host,
-                             user=setting.user,
-                             password=setting.password,
+connection = pymysql.connect(host=setting['host'],
+                             user=setting['user'],
+                             password=setting.['password'],
                              db='rakuten_recipe',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
