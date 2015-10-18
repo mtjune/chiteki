@@ -62,6 +62,6 @@ if __name__ == '__main__':
 
     for k, v in sorted(nns.items(), key=lambda x:x[1]):
         print(k, v)
-        i++
+        i += 1
         if i > 50:
             break
