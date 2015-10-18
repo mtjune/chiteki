@@ -40,30 +40,28 @@ if __name__ == '__main__':
 
 
     count = 0
-    nns = {}
+    categories = {}
     try:
         with connection.cursor() as cursor:
-            sql = "select title from recipes;"
+            sql = "select small_category from recipes;"
             cursor.execute(sql)
             for row in cursor:
                 count += 1
-                words = igo_parse(row['title'])
-                words_n = [w[0] for w in words if w[1] == "名詞"]
-                for word in words_n:
-                    if word in nns:
-                        nns[word] += 1
-                    else:
-                        nns[word] = 1
+                word = row['title']
+                if word in categories:
+                    categories[word] += 1
+                else:
+                    categories[word] = 1
 
     finally:
         connection.close()
 
 
     print('count:', count)
-    print('dictlen', len(nns))
+    print('dictlen', len(categories))
 
     i = 0
-    for k, v in sorted(nns.items(), key=lambda x:x[1]):
+    for k, v in sorted(categories.items(), key=lambda x:x[1]):
         print(k, v)
         i += 1
         if i > 50:
