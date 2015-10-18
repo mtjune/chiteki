@@ -39,13 +39,14 @@ if __name__ == '__main__':
                                  cursorclass=pymysql.cursors.DictCursor)
 
 
+    count = 0
     nns = {}
-
     try:
         with connection.cursor() as cursor:
             sql = "select title from recipes;"
             cursor.execute(sql)
             for row in cursor:
+                count += 1
                 words = igo_parse(row['title'])
                 words_n = [w[0] for w in words if w[1] == "名詞"]
                 for word in words_n:
@@ -58,8 +59,10 @@ if __name__ == '__main__':
         connection.close()
 
 
+    print('count:', count)
+    print('dictlen', len(nns))
+    
     i = 0
-
     for k, v in sorted(nns.items(), key=lambda x:x[1]):
         print(k, v)
         i += 1
