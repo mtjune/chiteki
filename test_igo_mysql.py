@@ -7,8 +7,7 @@ import numpy as np
 
 import igo
 
-CHAR_CODE = "utf-8"
-DIC_DIR = "~/workspace/tmp/igo_ipadic"
+DIC_DIR = "/home/yamajun/workspace/tmp/igo_ipadic"
 
 tagger = igo.tagger.Tagger(DIC_DIR)
 
