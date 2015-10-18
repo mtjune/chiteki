@@ -47,7 +47,7 @@ if __name__ == '__main__':
             cursor.execute(sql)
             for row in cursor:
                 words = igo_parse(row['title'])
-                words_n = [w[0] for w in words if w[1] is "名詞"]
+                words_n = [w[0] for w in words if w[1] == "名詞"]
                 for word in words_n:
                     if word in nns:
                         nns[word] += 1
