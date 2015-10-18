@@ -9,7 +9,7 @@ DIC_DIR = '/home/yamajun/workspace/tmp/igo_ipadic'
 if __name__ == '__main__':
 
 
-    text = u"すもももももももものうち"
+    text = u"本日は晴天なり"
     tagger = igo.tagger.Tagger(DIC_DIR)
 
     words = tagger.parse(text)
