@@ -2,3 +2,5 @@ mysql_setting.yml
 
 *.pyc
 *.out
+
+result/

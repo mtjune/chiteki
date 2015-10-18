@@ -58,7 +58,10 @@ if __name__ == '__main__':
         connection.close()
 
 
-    nns_limited = nns[0:50]
+    i = 0
 
-    for k, v in sorted(nns_limited.items(), key=lambda x:x[1]):
+    for k, v in sorted(nns.items(), key=lambda x:x[1]):
         print(k, v)
+        i++
+        if i > 50:
+            break
