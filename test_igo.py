@@ -1,5 +1,5 @@
 # encoding: utf-8
-from igo import tagger.Tagger
+import igo
 
 CHAR_CODE = "utf-8"
 DIC_DIR = "~/workspace/tmp/igo_ipadic"
@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
 
     text = u"すもももももももものうち"
-    tagger = Tagger(DIC_DIR)
+    tagger = igo.tagger.Tagger(DIC_DIR)
 
     words = tagger.parse(text)
 
