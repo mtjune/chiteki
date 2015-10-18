@@ -61,7 +61,7 @@ if __name__ == '__main__':
     print('dictlen', len(categories))
 
     i = 0
-    for k, v in sorted(categories.items(), key=lambda x:x[1]):
+    for k, v in sorted(categories.items(), key=lambda x:x[1], reverse=True):
         print(k, v)
         i += 1
         if i > 50:
