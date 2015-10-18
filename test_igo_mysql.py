@@ -10,26 +10,22 @@ import igo
 CHAR_CODE = "utf-8"
 DIC_DIR = "~/workspace/tmp/igo_ipadic"
 
-def mecabparse(text):
-    mt = MeCab.Tagger()
-    # text = text.encode(CHAR_CODE)
+tagger = igo.tagger.Tagger(DIC_DIR)
 
-    res = mt.parse(text)
+def igo_parse(text):
+
+    words = tagger.parse(text)
     outputs = []
 
-    lines = res.split("\n")
-
-    for line in lines[0:-2]	:
-        word, feature = line.split("\t", 2)
-        outputs.append([word] + feature.split(","))
+    for word in words:
+        features = word.feature.split(",")
+        outputs.append([word.surface] + features)
 
     return outputs
 
 
 
 if __name__ == '__main__':
-
-    tagger = igo.Tagger(DIC_DIR)
 
     setting = None
     with open('mysql_setting.yml', 'r') as f:
@@ -48,10 +44,10 @@ if __name__ == '__main__':
 
     try:
         with connection.cursor() as cursor:
-            sql = "select title from recipes limit 50;"
+            sql = "select title from recipes limit 500;"
             cursor.execute(sql)
             for row in cursor:
-                words = mecabparse(row['title'])
+                words = tagger.parse(row['title'])
                 words_n = [w[0] for w in words if w[1] is "名詞"]
                 for word in words_n:
                     if word in nns:
