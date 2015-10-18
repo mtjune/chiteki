@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     try:
         with connection.cursor() as cursor:
-            sql = "select title from recipes limit 500;"
+            sql = "select title from recipes;"
             cursor.execute(sql)
             for row in cursor:
                 words = igo_parse(row['title'])
@@ -57,4 +57,8 @@ if __name__ == '__main__':
     finally:
         connection.close()
 
-    print(nns)
+
+    nns_limited = nns[0:50]
+
+    for k, v in sorted(nns_limited.items(), key=lambda x:x[1]):
+        print(k, v)
