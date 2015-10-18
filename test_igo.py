@@ -1,5 +1,5 @@
 # encoding: utf-8
-from igo import Tagger
+from igo import tagger.Tagger
 
 CHAR_CODE = "utf-8"
 DIC_DIR = "~/workspace/tmp/igo_ipadic"
