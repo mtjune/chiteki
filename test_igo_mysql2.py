@@ -43,11 +43,11 @@ if __name__ == '__main__':
     categories = {}
     try:
         with connection.cursor() as cursor:
-            sql = "select large_category from recipes;"
+            sql = "select small_category from recipes;"
             cursor.execute(sql)
             for row in cursor:
                 count += 1
-                word = row['large_category']
+                word = row['small_category']
                 if word in categories:
                     categories[word] += 1
                 else:
