@@ -47,7 +47,7 @@ if __name__ == '__main__':
             cursor.execute(sql)
             for row in cursor:
                 count += 1
-                word = row['title']
+                word = row['small_category']
                 if word in categories:
                     categories[word] += 1
                 else:
