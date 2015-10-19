@@ -40,31 +40,41 @@ if __name__ == '__main__':
 
 
     count = 0
-    nns = {}
+    cooktimes = [0, 0, 0, 0, 0, 0]
+    cooktimes_count = [0, 0, 0, 0, 0, 0]
     try:
         with connection.cursor() as cursor:
-            sql = "select name from recipes;"
+            sql = "select cooktime_id, money_id from recipes;"
             cursor.execute(sql)
             for row in cursor:
                 count += 1
-                words = igo_parse(row['name'])
-                words_n = [w[0] for w in words if w[1] == "名詞"]
-                for word in words_n:
-                    if word in nns:
-                        nns[word] += 1
-                    else:
-                        nns[word] = 1
+                money = 0
+                if row['money_id'] == 1:
+                    money = 100
+                elif row['money_id'] == 2:
+                    money = 300
+                elif row['money_id'] == 3:
+                    money = 500
+                elif row['money_id'] == 4:
+                    money = 1000
+                elif row['money_id'] == 5:
+                    money = 2000
+                elif row['money_id'] == 6:
+                    money = 3000
+                elif row['money_id'] == 7:
+                    money = 5000
+                elif row['money_id'] == 8:
+                    money = 10000
+
+                cooktimes[row['cooktime_id'] - 1] += money
+                if money != 0:
+                    cooktimes_count += 1
 
     finally:
         connection.close()
 
 
-    print('count:', count)
-    print('dictlen', len(nns))
+    print('count:', cooktimes_count)
 
-    i = 0
-    for k, v in sorted(nns.items(), key=lambda x:x[1], reverse=True):
-        print(k, v)
-        i += 1
-        if i > 50:
-            break
+    for i, v in enumerate(cooktimes):
+        print('cooktime_id = {0}: {1}'.format(i + 1, v / cooktimes_count[i]))
