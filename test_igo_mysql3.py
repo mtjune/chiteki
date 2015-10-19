@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
                 cooktimes[row['cooktime_id'] - 1] += money
                 if money != 0:
-                    cooktimes_count += 1
+                    cooktimes_count[row['cooktime_id'] - 1] += 1
 
     finally:
         connection.close()
