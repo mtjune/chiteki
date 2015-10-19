@@ -47,6 +47,8 @@ if __name__ == '__main__':
             sql = "select cooktime_id, money_id from recipes;"
             cursor.execute(sql)
             for row in cursor:
+                if not row['cooktime_id'] or not row['money_id']:
+                    continue
                 count += 1
                 money = 0
                 if row['money_id'] == 1:
