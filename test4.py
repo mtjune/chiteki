@@ -51,10 +51,10 @@ if __name__ == '__main__':
                 morphs_memo = igo_parse(row['s_memo'])
                 if i_name in [morph[0] for morph in morphs_memo if morph[1] == "名詞"]:
                     verbs = [morph[8] for morph in morphs_memo if morph[1] == "動詞"]
-                    if not n_v[i_name]:
+                    if not i_name in n_v:
                         n_v[i_name] = {}
                     for verb in verbs:
-                        if n_v[i_name][verb]:
+                        if verb in n_v[i_name]:
                             n_v[i_name][verb] += 1
                         else:
                             n_v[i_name][verb] = 1
