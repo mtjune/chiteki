@@ -43,7 +43,7 @@ if __name__ == '__main__':
     n_v = {}
     try:
         with connection.cursor() as cursor:
-            sql = "select ingredients.name as i_name, steps.memo as s_memo from ingredients join steps where ingredients.recipe_id = steps.recipe_id;"
+            sql = "select ingredients.name as i_name, steps.memo as s_memo from ingredients join steps on ingredients.recipe_id = steps.recipe_id;"
             cursor.execute(sql)
             for row in cursor:
                 count += 1
