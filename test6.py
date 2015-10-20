@@ -77,5 +77,5 @@ if __name__ == '__main__':
     print('length_tags', len(tags))
 
 
-    for k, v in sorted(n_v.items(), key=lambda x:x[1], reverse=True)[0:50]:
+    for k, v in sorted(tags.items(), key=lambda x:x[1], reverse=True)[0:50]:
         print(k, v)
