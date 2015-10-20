@@ -50,7 +50,7 @@ if __name__ == '__main__':
                 i_name = row['i_name']
                 morphs_memo = igo_parse(row['s_memo'])
                 if i_name in [morph[0] for morph in morphs_memo if morph[1] == "名詞"]:
-                    verbs = [morph[8] for morph in morphs_memo if morphs[1] == "動詞"]
+                    verbs = [morph[8] for morph in morphs_memo if morph[1] == "動詞"]
                     if not n_v[i_name]:
                         n_v[i_name] = {}
                     for verb in verbs:
