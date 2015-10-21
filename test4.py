@@ -69,16 +69,11 @@ if __name__ == '__main__':
 
 
 
-    i = 0
     for k, v in sorted(n_v.items(), key=lambda x:len(x[1]), reverse=True):
         print(k)
-        j = 0
+        i = 0
         for kk, vv in sorted(v.items(), key=lambda x:x[1], reverse=True):
-            print("\t{0}:{1}".format(j, vv))
-            j += 1
-            if j > 10:
+            print("\t{0}:{1}".format(kk, vv))
+            i += 1
+            if i > 20:
                 break
-
-        i += 1
-        if i > 10:
-            break
