@@ -50,7 +50,7 @@ if __name__ == '__main__':
     genres = {}
     try:
         with connection.cursor() as cursor:
-            sql = "select genre.name as g_name, review.description as desc from genre join review on genre.id = review.item_genre_id;"
+            sql = "select genre.name as g_name, review.description as r_desc from genre join review on genre.id = review.item_genre_id;"
             cursor.execute(sql)
             for row in cursor:
                 count += 1
