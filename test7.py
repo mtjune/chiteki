@@ -46,42 +46,45 @@ if __name__ == '__main__':
                                  cursorclass=pymysql.cursors.DictCursor)
 
 
-    count = 0
-    genres = {}
+    genres = []
+    genre_words = {}
     try:
         with connection.cursor() as cursor:
-            sql = "select genre.name as g_name, review.description as r_desc from genre join review on genre.id = review.item_genre_id;"
+
+            # ジャンル一覧を取得
+            sql = "select id, name from genre;"
             cursor.execute(sql)
             for row in cursor:
-                count += 1
-                i_name = row['g_name']
-                if i_name in genres:
-                    genres[g_name] = {}
-
-                morphs = igo_parse(row['desc'])
-                morphs_filtered = [x[7] for x in morphs if x[1] == "名詞" or x[1] == "動詞"]
-
-                for morph in morphs_filtered:
-                    if morph in genres[g_name]:
-                        genres[g_name][morph] += 1
-                    else:
-                        genres[g_name][morph] = 1
+                genres.append((row['id'], row['name']))
 
 
+            # ジャンル毎のレビュー取得 & 集計
+            for genre_id, genre_name in genres:
+                if not genre_name in genre_words:
+                    genre_words[genre_name] = {}
 
+                sql = "select description from review where item_genre_id = {};".format(genre_id)
+                cursor.execute(sql)
+                for row in cursor:
+                    morphs = igo_parse(row['description'])
+                    morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
+
+                    for morph in morphs_filtered:
+                        if morph in genre_words[genre_name]:
+                            genre_words[genre_name][morph] += 1
+                        else:
+                            genre_words[genre_name][morph] = 1
 
     finally:
         connection.close()
 
-
-    print('count:', count)
     print('length_n', len(genres))
 
 
-    pickle.dump(genres, open('result/genres_b.out', 'wb'), -1)
+    pickle.dump(genre_words, open('result/genres_b.out', 'wb'), -1)
 
 
-    for key, value in sorted(genres.items(), key=lambda x:len(x[1]), reverse=True):
+    for key, value in sorted(genre_words.items(), key=lambda x:len(x[1]), reverse=True):
         print(key)
         for key1, value1 in sorted(value.items(), key=lambda x:x[1], reverse=True):
             print("-\t{0}\t{1}".format(key1, value1))
