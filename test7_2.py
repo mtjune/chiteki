@@ -58,40 +58,42 @@ if __name__ == '__main__':
 
         print('get genres.')
 
-        with connection.cursor() as cursor:
             # ジャンル毎のレビュー取得 & 集計
             for genre_id, genre_name in genres:
 
                 if genre_name == "その他":
                     continue
 
-                t0 = time.time()
-                if not genre_name in genre_words:
-                    genre_words[genre_name] = {}
+                with connection.cursor() as cursor:
+                    t0 = time.time()
+                    if not genre_name in genre_words:
+                        genre_words[genre_name] = {}
 
-                sql = "select description from review where item_genre_id = {} limit 100;".format(genre_id)
-                print('query', genre_id, genre_name)
-                cursor.execute(sql)
-                t1 = time.time()
-                print('queried', genre_id, genre_name, t1 - t0)
-                keys = [x[0] for x in cursor.description]
-                desc_key = keys.index('description')
-                t2 = time.time()
-                print('get keys', genre_id, genre_name, t2 - t1)
-                count = 0
-                for row in cursor:
-                    count += 1
-                    morphs = igo_parse(row[desc_key])
-                    morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
+                    sql = "select description from review where item_genre_id = {} limit 100;".format(genre_id)
+                    print('query', genre_id, genre_name)
+                    cursor.execute(sql)
+                    t1 = time.time()
+                    print('queried', genre_id, genre_name, t1 - t0)
+                    keys = [x[0] for x in cursor.description]
+                    desc_key = keys.index('description')
+                    t2 = time.time()
+                    print('get keys', genre_id, genre_name, t2 - t1)
+                    count = 0
+                    for row in cursor:
+                        count += 1
+                        morphs = igo_parse(row[desc_key])
+                        morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
 
-                    for morph in morphs_filtered:
-                        if morph in genre_words[genre_name]:
-                            genre_words[genre_name][morph] += 1
-                        else:
-                            genre_words[genre_name][morph] = 1
+                        for morph in morphs_filtered:
+                            if morph in genre_words[genre_name]:
+                                genre_words[genre_name][morph] += 1
+                            else:
+                                genre_words[genre_name][morph] = 1
 
-                t3 = time.time()
-                print('{0}, {1}, {2} : {3}'.format(genre_id, genre_name, count, t3 - t2))
+                    t3 = time.time()
+                    print('{0}, {1}, {2} : {3}'.format(genre_id, genre_name, count, t3 - t2))
+
+
 
     finally:
         connection.close()
