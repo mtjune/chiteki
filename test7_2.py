@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
         # ジャンル毎のレビュー取得 & 集計
         for genre_id, genre_name in genres:
-            if genre_name == "その他":
+            if genre_name in ["その他", "パソコン周辺機器"]:
                 continue
 
             with connection.cursor() as cursor:
