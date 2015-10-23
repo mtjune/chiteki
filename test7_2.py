@@ -56,6 +56,7 @@ if __name__ == '__main__':
             keys = [x[0] for x in cursor.description]
             genres = [(row[keys.index('id')], row[keys.index('name')]) for row in cursor]
 
+        print('get genres.')
 
         with connection.cursor() as cursor:
             # ジャンル毎のレビュー取得 & 集計
@@ -66,9 +67,14 @@ if __name__ == '__main__':
                     genre_words[genre_name] = {}
 
                 sql = "select description from review where item_genre_id = {} limit 100;".format(genre_id)
+                print('query', genre_id, genre_name)
                 cursor.execute(sql)
+                t1 = time.time()
+                print('queried', genre_id, genre_name, t1 - t0)
                 keys = [x[0] for x in cursor.description]
                 desc_key = keys.index('description')
+                t2 = time.time()
+                print('get keys', genre_id, genre_name, t2 - t1)
                 for row in cursor:
                     morphs = igo_parse(row[desc_key])
                     morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
@@ -79,8 +85,8 @@ if __name__ == '__main__':
                         else:
                             genre_words[genre_name][morph] = 1
 
-                t1 = time.time()
-                print('{0}, {1} : {2}'.format(genre_id, genre_name, t1 - t0))
+                t3 = time.time()
+                print('{0}, {1} : {2}'.format(genre_id, genre_name, t3 - t2))
 
     finally:
         connection.close()
