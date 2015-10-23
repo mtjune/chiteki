@@ -62,7 +62,7 @@ if __name__ == '__main__':
     print('length_n', len(genres))
 
 
-    pickle.dump(genre_words, open('result/genres_b.out', 'wb'), -1)
+    pickle.dump(genres, open('result/genres_only_b.out', 'wb'), -1)
 
 
     for g_id, g_name in genres:
