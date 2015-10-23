@@ -42,7 +42,7 @@ if __name__ == '__main__':
                                  password=setting['password'],
                                  db='rakuten_ichiba',
                                  charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.DictCursor)
+                                 cursorclass=pymysql.cursors.SSCursor)
 
 
     genres = []
@@ -60,7 +60,8 @@ if __name__ == '__main__':
 
             t1 = time.time()
 
-            genres = [(row['id'], row['name']) for row in cursor]
+            keys = [x[0] for x in cursor.description]
+            genres = [(row[keys['id']], row[keys['name']]) for row in cursor]
 
             t2 = time.time()
 
