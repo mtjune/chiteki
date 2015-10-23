@@ -62,6 +62,9 @@ if __name__ == '__main__':
             # ジャンル毎のレビュー取得 & 集計
             for genre_id, genre_name in genres:
 
+                if genre_name == "その他":
+                    continue
+
                 t0 = time.time()
                 if not genre_name in genre_words:
                     genre_words[genre_name] = {}
