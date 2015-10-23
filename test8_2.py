@@ -61,7 +61,7 @@ if __name__ == '__main__':
             t1 = time.time()
 
             keys = [x[0] for x in cursor.description]
-            genres = [(row[keys.index('id')], row[keys.index('name')] for row in cursor]
+            genres = [(row[keys.index('id')], row[keys.index('name')]) for row in cursor]
 
             t2 = time.time()
 
