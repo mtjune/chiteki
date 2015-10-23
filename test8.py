@@ -45,7 +45,6 @@ if __name__ == '__main__':
 
 
     genres = []
-    genre_words = {}
     try:
         with connection.cursor() as cursor:
 
@@ -56,22 +55,6 @@ if __name__ == '__main__':
                 genres.append((row['id'], row['name']))
 
 
-            # ジャンル毎のレビュー取得 & 集計
-            for genre_id, genre_name in genres:
-                if not genre_name in genre_words:
-                    genre_words[genre_name] = {}
-
-                sql = "select description from review where item_genre_id = {};".format(genre_id)
-                cursor.execute(sql)
-                for row in cursor:
-                    morphs = igo_parse(row['description'])
-                    morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
-
-                    for morph in morphs_filtered:
-                        if morph in genre_words[genre_name]:
-                            genre_words[genre_name][morph] += 1
-                        else:
-                            genre_words[genre_name][morph] = 1
 
     finally:
         connection.close()
@@ -82,7 +65,5 @@ if __name__ == '__main__':
     pickle.dump(genre_words, open('result/genres_b.out', 'wb'), -1)
 
 
-    for key, value in sorted(genre_words.items(), key=lambda x:len(x[1]), reverse=True):
-        print(key)
-        for key1, value1 in sorted(value.items(), key=lambda x:x[1], reverse=True):
-            print("-\t{0}\t{1}".format(key1, value1))
+    for g_id, g_name in genres:
+        print(g_id, g_name)
