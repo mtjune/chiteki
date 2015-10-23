@@ -4,6 +4,7 @@
 
 import pymysql
 import yaml
+import time
 
 import pandas as pd
 import numpy as np
@@ -59,6 +60,8 @@ if __name__ == '__main__':
         with connection.cursor() as cursor:
             # ジャンル毎のレビュー取得 & 集計
             for genre_id, genre_name in genres:
+
+                t0 = time.time()
                 if not genre_name in genre_words:
                     genre_words[genre_name] = {}
 
@@ -76,13 +79,16 @@ if __name__ == '__main__':
                         else:
                             genre_words[genre_name][morph] = 1
 
+                t1 = time.time()
+                print('{0}, {1} : {2}'.format(genre_id, genre_name, t1 - t0))
+
     finally:
         connection.close()
 
     print('length_n', len(genres))
 
 
-    pickle.dump(genre_words, open('result/genres_b.out', 'wb'), -1)
+    pickle.dump(genre_words, open('result/genres_2_b.out', 'wb'), -1)
 
 
     for key, value in sorted(genre_words.items(), key=lambda x:len(x[1]), reverse=True):
