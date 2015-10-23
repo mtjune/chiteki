@@ -78,7 +78,9 @@ if __name__ == '__main__':
                 desc_key = keys.index('description')
                 t2 = time.time()
                 print('get keys', genre_id, genre_name, t2 - t1)
+                count = 0
                 for row in cursor:
+                    count += 1
                     morphs = igo_parse(row[desc_key])
                     morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
 
@@ -89,7 +91,7 @@ if __name__ == '__main__':
                             genre_words[genre_name][morph] = 1
 
                 t3 = time.time()
-                print('{0}, {1} : {2}'.format(genre_id, genre_name, t3 - t2))
+                print('{0}, {1}, {2} : {3}'.format(genre_id, genre_name, count, t3 - t2))
 
     finally:
         connection.close()
