@@ -2,5 +2,7 @@ mysql_setting.yml
 
 *.pyc
 *.out
+*.png
+*.jpg
 
 result/

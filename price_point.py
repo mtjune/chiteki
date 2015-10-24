@@ -8,8 +8,11 @@ import time
 
 import pandas as pd
 import numpy as np
+import matplotlib
+from matplotlib import pyplot as plt
 import six.moves.cPickle as pickle
 
+matplotlib.use("Agg")
 
 if __name__ == '__main__':
 
@@ -25,7 +28,11 @@ if __name__ == '__main__':
                                  charset='utf8mb4',
                                  cursorclass=pymysql.cursors.SSCursor)
 
-    genres = {}
+
+
+
+    prices = []
+    points = []
 
     t0 = None
     t1 = None
@@ -34,17 +41,20 @@ if __name__ == '__main__':
         with connection.cursor() as cursor:
 
             t0 = time.time()
-            sql = "select item_price, point from review where purchased = '1' limit 10;"
+            sql = "select item_price, point from review where purchased = '1' limit 1000000;"
             cursor.execute(sql)
 
             t1 = time.time()
 
-            prices = []
-            points = []
-
+            rowlength = cursor.rowcount
+            count = 0
             for row in cursor:
                 prices.append(int(row[0]))
                 points.append(int(row[1]))
+
+                if count % 100000 == 0:
+                    print("{0}/{1}".format(count, rowlength))
+                count += 1
 
 
             t2 = time.time()
@@ -52,11 +62,12 @@ if __name__ == '__main__':
     finally:
         connection.close()
 
+    plt.plot(prices, points, 'o')
+    plt.savefig("result/fig1.png")
+
 
     # pickle.dump(genres, open('result/genres_only_b.out', 'wb'), -1)
     # print('saved')
 
-    print(prices)
-    print(points)
     print('1 - 0 : {}'.format(t1 - t0))
     print('2 - 1 : {}'.format(t2 - t1))
