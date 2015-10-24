@@ -52,7 +52,7 @@ if __name__ == '__main__':
             print("query :", sql)
             cursor.execute(sql)
             print("query complete")
-            cur_length = len(cursor)
+            cur_length = cursor.rowcount
             count = 0
             for row in cursor:
                 genre_name = str(row[0])
