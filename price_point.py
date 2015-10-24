@@ -1,0 +1,62 @@
+# encoding: utf-8
+
+# 市場データから，レビューよりどの要素がその商品の評価に関わるか
+
+import pymysql
+import yaml
+import time
+
+import pandas as pd
+import numpy as np
+import six.moves.cPickle as pickle
+
+
+if __name__ == '__main__':
+
+    setting = None
+    with open('mysql_setting.yml', 'r') as f:
+        setting = yaml.load(f)
+
+
+    connection = pymysql.connect(host=setting['host'],
+                                 user=setting['user'],
+                                 password=setting['password'],
+                                 db='rakuten_ichiba',
+                                 charset='utf8mb4',
+                                 cursorclass=pymysql.cursors.SSCursor)
+
+    genres = {}
+
+    t0 = None
+    t1 = None
+    t2 = None
+    try:
+        with connection.cursor() as cursor:
+
+            # ジャンル一覧を取得
+            t0 = time.time()
+            sql = "select item_price, point from genre where purchase = '1';"
+            cursor.execute(sql)
+
+            t1 = time.time()
+
+            keys = [x[0] for x in cursor.description]
+
+            for row in cursor:
+                genres[str(row[0])] = row[1]
+
+
+            t2 = time.time()
+
+    finally:
+        connection.close()
+
+    print('length_n', len(genres))
+
+
+    pickle.dump(genres, open('result/genres_only_b.out', 'wb'), -1)
+    print('saved')
+
+
+    print('1 - 0 : {}'.format(t1 - t0))
+    print('2 - 1 : {}'.format(t2 - t1))

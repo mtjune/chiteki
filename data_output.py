@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--data', '-d', default='result/genre_words.out')
+    parser.add_argument('--data', '-d', default='result/genre_words_b.out')
     args = parser.parse_args()
 
 
@@ -28,6 +28,10 @@ if __name__ == '__main__':
 
 
     for genre_id, words in sorted(genre_words.items(), key=lambda x:len(x[1]), reverse=True):
+
+        if not genre_id in genres:
+            continue
+
         genre_name = genres[genre_id]
         print(genre_name)
         for word, num in sorted(words.items(), key=lambda x:x[1], reverse=True)[:20]:

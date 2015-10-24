@@ -57,7 +57,7 @@ if __name__ == '__main__':
             for row in cursor:
                 genre_name = str(row[0])
                 morphs = igo_parse(row[1])
-                morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
+                morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞"]]
                 if not genre_name in genre_words:
                     genre_words[genre_name] = {}
 
