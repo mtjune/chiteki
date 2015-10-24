@@ -54,6 +54,7 @@ if __name__ == '__main__':
             print("query complete")
             count = 0
             for row in cursor:
+                print("start: {0} : {1}".format(count, row[0]))
                 morphs = igo_parse(row[1])
                 morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
 
@@ -67,8 +68,7 @@ if __name__ == '__main__':
                     else:
                         genre_words[str(row[0])][morph] = 1
 
-                sys.stdout.write("\rend: {0} : {1}".format(count, row[0]))
-                sys.stdout.flush()
+                print("end: {0} : {1}".format(count, row[0]))
                 count += 1
 
 
