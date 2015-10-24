@@ -74,8 +74,6 @@ if __name__ == '__main__':
                     print("saved : {}".format(count))
                 count += 1
 
-    except:
-        print("error")
 
     finally:
         connection.close()
