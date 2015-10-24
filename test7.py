@@ -60,9 +60,9 @@ if __name__ == '__main__':
                 morphs = igo_parse(row[1])
                 morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
                 if not genre_name in genre_words:
-                    genre_words = {}
+                    genre_words[genre_name] = {}
 
-
+                print(morphs_filtered)
                 for morph in morphs_filtered:
                     if morph in genre_words[genre_name]:
                         genre_words[genre_name][morph] += 1
