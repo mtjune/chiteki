@@ -34,7 +34,7 @@ if __name__ == '__main__':
         with connection.cursor() as cursor:
 
             t0 = time.time()
-            sql = "select item_price, point from review where purchase = '1' limit 10;"
+            sql = "select item_price, point from review where purchased = '1' limit 10;"
             cursor.execute(sql)
 
             t1 = time.time()
