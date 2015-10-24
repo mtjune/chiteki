@@ -55,9 +55,10 @@ if __name__ == '__main__':
             cur_length = cursor.rowcount
             count = 0
             for row in cursor:
-                if row[0] in ['0', '1', '2', '3', '4', '5']
+                if not row[0] in ['0', '1', '2', '3', '4', '5']:
+                    continue
                 score = int(row[0])
-                
+
                 morphs = igo_parse(row[1])
                 morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "形容詞", "副詞", "動詞"]]
 
