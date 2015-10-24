@@ -92,6 +92,8 @@ if __name__ == '__main__':
                 t3 = time.time()
                 print('{0}, {1}, {2} : {3}'.format(genre_id, genre_name, count, t3 - t2))
 
+            time.sleep(2)
+
 
 
     finally:
