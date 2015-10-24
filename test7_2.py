@@ -68,9 +68,9 @@ if __name__ == '__main__':
                 if not genre_name in genre_words:
                     genre_words[genre_name] = {}
 
-                sql = "select description from review where item_genre_id = {} limit 100;".format(genre_id)
+                sql = "select `description` from `review` where `item_genre_id` = %s limit 100;"
                 print('query', genre_id, genre_name)
-                cursor.execute(sql)
+                cursor.execute(sql, (str(genre_id),))
                 t1 = time.time()
                 print('queried', genre_id, genre_name, t1 - t0)
                 keys = [x[0] for x in cursor.description]
