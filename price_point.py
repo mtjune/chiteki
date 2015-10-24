@@ -33,17 +33,18 @@ if __name__ == '__main__':
     try:
         with connection.cursor() as cursor:
 
-            # ジャンル一覧を取得
             t0 = time.time()
-            sql = "select item_price, point from genre where purchase = '1';"
+            sql = "select item_price, point from review where purchase = '1' limit 10;"
             cursor.execute(sql)
 
             t1 = time.time()
 
-            keys = [x[0] for x in cursor.description]
+            prices = []
+            points = []
 
             for row in cursor:
-                genres[str(row[0])] = row[1]
+                prices.append(int(row[0]))
+                points.append(int(row[1]))
 
 
             t2 = time.time()
@@ -51,12 +52,11 @@ if __name__ == '__main__':
     finally:
         connection.close()
 
-    print('length_n', len(genres))
 
+    # pickle.dump(genres, open('result/genres_only_b.out', 'wb'), -1)
+    # print('saved')
 
-    pickle.dump(genres, open('result/genres_only_b.out', 'wb'), -1)
-    print('saved')
-
-
+    print(prices)
+    print(points)
     print('1 - 0 : {}'.format(t1 - t0))
     print('2 - 1 : {}'.format(t2 - t1))
