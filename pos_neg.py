@@ -45,7 +45,6 @@ if __name__ == '__main__':
 
 
     word_scores = {}
-    score_array = np.ndarray([-3, -2, -1, 1, 2, 3])
     try:
         with connection.cursor() as cursor:
 
