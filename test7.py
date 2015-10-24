@@ -41,37 +41,36 @@ if __name__ == '__main__':
                                  password=setting['password'],
                                  db='rakuten_ichiba',
                                  charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.DictCursor)
+                                 cursorclass=pymysql.cursors.SSCursor)
 
 
-    genres = []
     genre_words = {}
     try:
         with connection.cursor() as cursor:
 
-            # ジャンル一覧を取得
-            sql = "select id, name from genre;"
+            sql = "select item_genre_id, description from review;"
+            print("query :", sql)
             cursor.execute(sql)
+            print("query complete")
+            count = 0
             for row in cursor:
-                genres.append((row['id'], row['name']))
+                morphs = igo_parse(row[1])
+                morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
+
+                if not str(row[0]) in genre_words:
+                    genre_words = {}
 
 
-            # ジャンル毎のレビュー取得 & 集計
-            for genre_id, genre_name in genres:
-                if not genre_name in genre_words:
-                    genre_words[genre_name] = {}
+                for morph in morphs_filtered:
+                    if morph in genre_words[genre_name]:
+                        genre_words[str(row[0])][morph] += 1
+                    else:
+                        genre_words[str(row[0])][morph] = 1
 
-                sql = "select description from review where item_genre_id = {};".format(genre_id)
-                cursor.execute(sql)
-                for row in cursor:
-                    morphs = igo_parse(row['description'])
-                    morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
+                sys.stdout.write("\rend: {0} : {1}".format(count, row[0]))
+                sys.stdout.flush()
+                count += 1
 
-                    for morph in morphs_filtered:
-                        if morph in genre_words[genre_name]:
-                            genre_words[genre_name][morph] += 1
-                        else:
-                            genre_words[genre_name][morph] = 1
 
     finally:
         connection.close()
