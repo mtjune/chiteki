@@ -43,7 +43,7 @@ if __name__ == '__main__':
                                  password=setting['password'],
                                  db='rakuten_ichiba',
                                  charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.SSCursor)
+                                 cursorclass=MySQLdb.cursors.SSCursor)
 
 
     genres = []
