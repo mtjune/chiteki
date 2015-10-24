@@ -55,12 +55,15 @@ if __name__ == '__main__':
             count = 0
             for row in cursor:
                 print("start: {0} : {1}".format(count, row[0]))
+                print(row[1])
                 morphs = igo_parse(row[1])
+                print(0)
                 morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
-
+                print(1)
                 if not str(row[0]) in genre_words:
                     genre_words = {}
 
+                print(2)
 
                 for morph in morphs_filtered:
                     if morph in genre_words[genre_name]:
