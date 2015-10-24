@@ -43,7 +43,7 @@ if __name__ == '__main__':
         with connection.cursor() as cursor:
 
             t0 = time.time()
-            sql = "select item_price, point from review where purchased = '1' limit 1000000;"
+            sql = "select item_price, point from review where purchased = '1' limit 10000000;"
             cursor.execute(sql)
 
             t1 = time.time()
@@ -51,6 +51,8 @@ if __name__ == '__main__':
             rowlength = cursor.rowcount
             count = 0
             for row in cursor:
+                if int(row[0]) > 100000:
+                    continue
                 prices.append(int(row[0]))
                 points.append(int(row[1]))
 
