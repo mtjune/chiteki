@@ -37,7 +37,7 @@ if __name__ == '__main__':
         setting = yaml.load(f)
 
 
-    connection = pymysql.connect(host=setting['host'],
+    connection = pymysql3.connect(host=setting['host'],
                                  user=setting['user'],
                                  password=setting['password'],
                                  db='rakuten_ichiba',
@@ -68,7 +68,7 @@ if __name__ == '__main__':
                 if not genre_name in genre_words:
                     genre_words[genre_name] = {}
 
-                sql = "select `description` from `review` where `item_genre_id` = %s limit 100;"
+                sql = "select description from review where item_genre_id = %s limit 100;"
                 print('query', genre_id, genre_name)
                 cursor.execute(sql, (str(genre_id),))
                 t1 = time.time()
