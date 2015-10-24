@@ -67,7 +67,8 @@ if __name__ == '__main__':
                     else:
                         genre_words[genre_name][morph] = 1
 
-                print("end: {0}/{1} : {1}".format(count, cur_length, row[0]))
+                if count % 10000 == 0:
+                    print("end: {0}/{1}".format(count, cur_length))
                 count += 1
 
     except:
