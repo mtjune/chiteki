@@ -2,7 +2,8 @@
 
 # 市場データから，レビューよりどの要素がその商品の評価に関わるか
 
-import pymysql
+# import pymysql
+import MySQLdb
 import yaml
 import time
 
@@ -37,7 +38,7 @@ if __name__ == '__main__':
         setting = yaml.load(f)
 
 
-    connection = pymysql.connect(host=setting['host'],
+    connection = MySQLdb.connect(host=setting['host'],
                                  user=setting['user'],
                                  password=setting['password'],
                                  db='rakuten_ichiba',
