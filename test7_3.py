@@ -2,7 +2,7 @@
 
 # 市場データから，レビューよりどの要素がその商品の評価に関わるか
 
-import pymysql
+import MySQLdb
 import yaml
 import time
 
@@ -37,12 +37,10 @@ if __name__ == '__main__':
         setting = yaml.load(f)
 
 
-    connection = pymysql.connect(host=setting['host'],
+    connection = MySQLdb.connect(host=setting['host'],
                                  user=setting['user'],
                                  password=setting['password'],
-                                 db='rakuten_ichiba',
-                                 charset='utf8mb4',
-                                 cursorclass=pymysql.cursors.SSCursor)
+                                 db='rakuten_ichiba')
 
 
     genres = []
@@ -78,9 +76,10 @@ if __name__ == '__main__':
                 t2 = time.time()
                 print('get keys', genre_id, genre_name, t2 - t1)
                 count = 0
-                for row in cursor:
+                for i in range(cursor.rowcount):
+                    row = cursor.fetchone()
                     count += 1
-                    morphs = igo_parse(row[desc_key])
+                    morphs = igo_parse(row[0])
                     morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "動詞"]]
 
                     for morph in morphs_filtered:
