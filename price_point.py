@@ -8,11 +8,13 @@ import time
 
 import pandas as pd
 import numpy as np
-import matplotlib
-from matplotlib import pyplot as plt
 import six.moves.cPickle as pickle
 
+
+import matplotlib
 matplotlib.use("Agg")
+from matplotlib import pyplot as plt
+
 
 if __name__ == '__main__':
 
