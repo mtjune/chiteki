@@ -37,10 +37,7 @@ if __name__ == '__main__':
         setting = yaml.load(f)
 
 
-    connection = MySQLdb.connect(host=setting['host'],
-                                 user=setting['user'],
-                                 password=setting['password'],
-                                 db='rakuten_ichiba')
+    connection = MySQLdb.connect(setting['host'], setting['user'], setting['password'], 'rakuten_ichiba')
 
 
     genres = []
