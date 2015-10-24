@@ -22,7 +22,7 @@ if __name__ == '__main__':
     with open('result/genres_only_b.out', 'rb') as f:
         genres = pickle.load(f)
 
-    with open(arg.data, 'rb') as f:
+    with open(args.data, 'rb') as f:
         genre_words = pickle.load(f)
 
 
