@@ -62,7 +62,7 @@ if __name__ == '__main__':
                 morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "形容詞", "副詞", "動詞"]]
 
                 for morph in morphs_filtered:
-                    if morph in word_score:
+                    if morph in word_scores:
                         word_scores[morph] += np.asarray([score, 1], dtype=np.float32)
                     else:
                         word_scores[morph] = np.asarray([score, 1], dtype=np.float32)
