@@ -48,7 +48,7 @@ if __name__ == '__main__':
     try:
         with connection.cursor() as cursor:
 
-            sql = "select distinct point, description from review;"
+            sql = "select point, description from review;"
             print("query :", sql)
             cursor.execute(sql)
             print("query complete")
