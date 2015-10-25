@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-# 市場データから，レビューよりどの要素がその商品の評価に関わるか
-
 import pymysql
 import yaml
 
