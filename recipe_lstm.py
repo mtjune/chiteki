@@ -21,6 +21,7 @@ from chainer import optimizers
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vocab', '-c', default='result/vocab_dic_1_b.out')
+parser.add_argument('--recipe', '-r', default='result/recipe_ids_1_b.out')
 parser.add_argument('--gpu', '-g', default=-1, type=int)
 args = parser.parse_args()
 xp = cuda.cupy if args.gpu >= 0 else np
@@ -47,7 +48,7 @@ connection = pymysql.connect(host=setting['host'],
 
 n_epoch = 39   # number of epochs
 n_units = 650  # number of units per layer
-batchsize = 20   # minibatch size
+batchsize = 10   # minibatch size
 bprop_len = 35   # length of truncated BPTT
 grad_clip = 5    # gradient norm threshold to clip
 
@@ -56,20 +57,58 @@ vocab = None
 with open(args.vocab, 'rb') as f:
     vocab = pickle.load(f)
 
+recipe_ids = None
+with open(args.recipe, 'rb') as f:
+    recipe_ids = pickle.load(f)
 
-def load_data(recipe_id):
-    words = open(filename).read().replace('\n', '<eos>').strip().split()
+
+def load_data(text):
+    words = igo_parse(text)
     dataset = np.ndarray((len(words),), dtype=np.int32)
     for i, word in enumerate(words):
-        if word not in vocab:
-            vocab[word] = len(vocab)
+        if word in vocab:
+            print('{} not in vocab'.format(word))
+            continue
+
         dataset[i] = vocab[word]
     return dataset
 
 
-train_data = load_data('ptb.train.txt')
-valid_data = load_data('ptb.valid.txt')
-test_data = load_data('ptb.test.txt')
+train_text = ''
+valid_text = ''
+test_text = ''
+
+try:
+    for recipe_id for recipe_ids[:60]:
+        with connection.cursor() as cursor:
+            sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+
+            for _, text in sorted(result, key=lambda x:x[0]):
+                train_text = train_text + text
+
+    for recipe_id for recipe_ids[60:80]:
+        with connection.cursor() as cursor:
+            sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+
+            for _, text in sorted(result, key=lambda x:x[0]):
+                valid_text = valid_text + text
+
+    for recipe_id for recipe_ids[80:90]:
+        with connection.cursor() as cursor:
+            sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+
+            for _, text in sorted(result, key=lambda x:x[0]):
+                test_text = test_text + text
+
+train_data = load_data(train_text)
+valid_data = load_data(valid_text)
+test_data = load_data(test_text)
 print('#vocab =', len(vocab))
 
 # Prepare RNNLM model
