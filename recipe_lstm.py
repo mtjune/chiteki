@@ -106,6 +106,9 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 test_text = test_text + text
 
+finally:
+    connection.close()
+
 train_data = load_data(train_text)
 valid_data = load_data(valid_text)
 test_data = load_data(test_text)
