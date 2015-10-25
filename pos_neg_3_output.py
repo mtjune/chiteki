@@ -16,7 +16,7 @@ import six.moves.cPickle as pickle
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--data', '-d', default='result/word_scores_2_b.out')
+    parser.add_argument('--data', '-d', default='result/word_scores_3_b.out')
     args = parser.parse_args()
 
 
@@ -26,10 +26,10 @@ if __name__ == "__main__":
         word_scores = pickle.load(f)
     print('data loaded')
 
-    word_posneg = {key:x[0] / x[1] for key, x in word_scores.items() if x[1] > 4}
+    word_posneg = {key:x[0] / x[1] for key, x in word_scores.items() if x[1] > 10}
     print('data computed')
 
-    with open('result/word_posng_2_b.out', 'wb') as f:
+    with open('result/word_posng_3_b.out', 'wb') as f:
         pickle.dump(word_posneg, f, -1)
 
     print('data saved!')
