@@ -1,84 +1,91 @@
+# encoding: utf-8
 
 
 import argparse
-import datetime
-import multiprocessing
-import random
-import sys
-import threading
-import time
-import os
-import yaml
-import csv
-import shutil
-import glob
 import math
+import sys
+import time
+import yaml
+
+import pymysql
 
 import numpy as np
 import six
 import six.moves.cPickle as pickle
-from six.moves import queue
 
-# from chainer import computational_graph as c
+import chainer
 from chainer import cuda
+import chainer.functions as F
 from chainer import optimizers
 
-from readmat import readDepthMap
 
-parser = argparse.ArgumentParser(description='Learning convnet from ILSVRC2012 dataset')
-parser.add_argument('--arch', '-a', default='default', help='Convnet architecture(mini)')
-parser.add_argument('--BATCHSIZE', '-B', type=int, default=25, help='Learning minibatch size')
-parser.add_argument('--gpu', '-g', default=-1, type=int, help='GPU ID (negative value indicates CPU)')
-parser.add_argument('--optimizer', '-o', default='adam', help='optimizer select')
-parser.add_argument('--learningrate', '-l', default=0.01, type=float, help='momentumSGD Learning Rate')
-parser.add_argument('--momentum', '-m', default=0.9, type=float, help='momentumSGD momentum')
-parser.add_argument('--data', '-d', default='data', help='dataset directory')
-parser.add_argument('--mean', default=None, help='mean image')
-parser.add_argument('--ycbcr', '-y', action='store_true', default=False)
+parser = argparse.ArgumentParser()
+parser.add_argument('--vocab', '-c', default='result/vocab_dic_1_b.out')
+parser.add_argument('--gpu', '-g', default=-1, type=int)
 args = parser.parse_args()
+xp = cuda.cupy if args.gpu >= 0 else np
 
+
+DIC_DIR = "/home/yamajun/workspace/tmp/igo_ipadic"
+tagger = igo.tagger.Tagger(DIC_DIR)
+def igo_parse(text):
+    words = tagger.parse(text)
+    outputs = [word.surface for word in words]
+    return outputs
+
+setting = None
+with open('mysql_setting.yml', 'r') as f:
+    setting = yaml.load(f)
+connection = pymysql.connect(host=setting['host'],
+                             user=setting['user'],
+                             password=setting['password'],
+                             db='rakuten_recipe',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.SSCursor)
+
+
+
+n_epoch = 39   # number of epochs
+n_units = 650  # number of units per layer
+batchsize = 20   # minibatch size
+bprop_len = 35   # length of truncated BPTT
+grad_clip = 5    # gradient norm threshold to clip
 
 # Prepare dataset
-
-if os.path.isfile('config.yml'):
-    CONFIG_FILE = 'config.yml'
-else:
-    CONFIG_FILE = 'config_default.yml'
-
-config = None
-with open(CONFIG_FILE, 'r') as f:
-    config = yaml.load(f)
-
-N_EPOCH = config['N_EPOCH']
-BATCHSIZE = config['BATCHSIZE']
-VAL_BATCHSIZE = config['VAL_BATCHSIZE']
-WIDTH_IMG = config['WIDTH_IMG']
-HEIGHT_IMG = config['HEIGHT_IMG']
-
-print("N_EPOCH", N_EPOCH)
-print("BATCHSIZE", BATCHSIZE)
-print("WIDTH_IMG", WIDTH_IMG)
-print("HEIGHT_IMG", HEIGHT_IMG)
+vocab = None
+with open(args.vocab, 'rb') as f:
+    vocab = pickle.load(f)
 
 
-NORM_MAX = 81
+def load_data(recipe_id):
+    words = open(filename).read().replace('\n', '<eos>').strip().split()
+    dataset = np.ndarray((len(words),), dtype=np.int32)
+    for i, word in enumerate(words):
+        if word not in vocab:
+            vocab[word] = len(vocab)
+        dataset[i] = vocab[word]
+    return dataset
 
-run_at =  datetime.datetime.today().strftime('%Y-%m-%d_%H-%M-%S')
 
+train_data = load_data('ptb.train.txt')
+valid_data = load_data('ptb.valid.txt')
+test_data = load_data('ptb.test.txt')
+print('#vocab =', len(vocab))
 
-config_write = {'program':__file__, 'N_EPOCH':N_EPOCH, 'BATCHSIZE':BATCHSIZE, 'GPU':args.gpu, 'OPTIMIZER':args.optimizer, 'RUN_at':run_at, 'learningrate':args.learningrate, 'momentum':args.momentum}
-with open(LOGPATH + 'config.yml', 'w') as f:
-    f.write(yaml.dump(config_write))
-
-
-
-# Prepare model
+# Prepare RNNLM model
 model = chainer.FunctionSet(embed=F.EmbedID(len(vocab), n_units),
                             l1_x=F.Linear(n_units, 4 * n_units),
                             l1_h=F.Linear(n_units, 4 * n_units),
                             l2_x=F.Linear(n_units, 4 * n_units),
                             l2_h=F.Linear(n_units, 4 * n_units),
                             l3=F.Linear(n_units, len(vocab)))
+for param in model.parameters:
+    param[:] = np.random.uniform(-0.1, 0.1, param.shape)
+if args.gpu >= 0:
+    cuda.check_cuda_available()
+    cuda.get_device(args.gpu).use()
+    model.to_gpu()
+
 
 def forward_one_step(x_data, y_data, state, train=True):
     # Neural net architecture
@@ -94,287 +101,84 @@ def forward_one_step(x_data, y_data, state, train=True):
     return state, F.softmax_cross_entropy(y, t)
 
 
-
-if args.gpu >= 0:
-    cuda.check_cuda_available()
-    cuda.get_device(args.gpu).use()
-    model.to_gpu()
-
-xp = cuda.cupy if args.gpu >= 0 else np
-
-
 def make_initial_state(batchsize=batchsize, train=True):
-    return {name: chainer.Variable(xp.zeros((batchsize, n_units), dtype=np.float32), volatile=not train) for name in ('c1', 'h1', 'c2', 'h2')}
+    return {name: chainer.Variable(xp.zeros((batchsize, n_units),
+                                            dtype=np.float32),
+                                   volatile=not train)
+            for name in ('c1', 'h1', 'c2', 'h2')}
 
 # Setup optimizer
-if args.optimizer == 'adam':
-    optimizer = optimizers.Adam()
-elif args.optimizer == 'adadelta':
-    optimizer = optimizers.AdaDelta()
-elif args.optimizer == 'adagrad':
-    optimizer = optimizers.AdaGrad()
-elif args.optimizer == 'rmsprop':
-    optimizer = optimizers.RMSprop()
-elif args.optimizer == 'msgd':
-    optimizer = optimizers.MomentumSGD(lr=args.learningrate, momentum=args.momentum)
-else:
-    optimizer = optimizers.Adam()
-
-
+optimizer = optimizers.SGD(lr=1.)
 optimizer.setup(model)
 
-train_list = []
-with file(path_train + 'list.csv') as f:
-    readcsv = csv.reader(f)
-    for row in readcsv:
-        train_list.append(row)
 
-val_list = []
-with file(path_val + 'list.csv') as f:
-    readcsv = csv.reader(f)
-    for row in readcsv:
-        val_list.append(row)
+# Evaluation routine
 
 
-train_num = len(train_list) - (len(train_list) % BATCHSIZE)
-val_num = len(val_list) - (len(val_list) % VAL_BATCHSIZE)
+def evaluate(dataset):
+    sum_log_perp = xp.zeros(())
+    state = make_initial_state(batchsize=1, train=False)
+    for i in six.moves.range(dataset.size - 1):
+        x_batch = xp.asarray(dataset[i:i + 1])
+        y_batch = xp.asarray(dataset[i + 1:i + 2])
+        state, loss = forward_one_step(x_batch, y_batch, state, train=False)
+        sum_log_perp += loss.data.reshape(())
+
+    return math.exp(cuda.to_cpu(sum_log_perp) / (dataset.size - 1))
 
 
-def add_record(row_array, record_type):
-    if record_type == 'time':
-        filename = LOGPATH + 'record_time.csv'
-    else:
-        filename = LOGPATH + 'record_loss.csv'
+# Learning loop
+whole_len = train_data.shape[0]
+jump = whole_len // batchsize
+cur_log_perp = xp.zeros(())
+epoch = 0
+start_at = time.time()
+cur_at = start_at
+state = make_initial_state()
+accum_loss = chainer.Variable(xp.zeros((), dtype=np.float32))
+print('going to train {} iterations'.format(jump * n_epoch))
+for i in six.moves.range(jump * n_epoch):
+    x_batch = xp.array([train_data[(jump * j + i) % whole_len]
+                        for j in six.moves.range(batchsize)])
+    y_batch = xp.array([train_data[(jump * j + i + 1) % whole_len]
+                        for j in six.moves.range(batchsize)])
+    state, loss_i = forward_one_step(x_batch, y_batch, state)
+    accum_loss += loss_i
+    cur_log_perp += loss_i.data.reshape(())
 
-    with open(filename, 'a') as f:
-        record = csv.writer(f, lineterminator='\n')
-        record.writerow(row_array)
+    if (i + 1) % bprop_len == 0:  # Run truncated BPTT
+        optimizer.zero_grads()
+        accum_loss.backward()
+        accum_loss.unchain_backward()  # truncate
+        accum_loss = chainer.Variable(xp.zeros((), dtype=np.float32))
 
+        optimizer.clip_grads(grad_clip)
+        optimizer.update()
 
-# ------------------------------------------------------------------------------
-# This example consists of three threads: data feeder, logger and trainer.
-# These communicate with each other via Queue.
-data_q = queue.Queue(maxsize=1)
-res_q = queue.Queue()
+    if (i + 1) % 10000 == 0:
+        now = time.time()
+        throuput = 10000. / (now - cur_at)
+        perp = math.exp(cuda.to_cpu(cur_log_perp) / 10000)
+        print('iter {} training perplexity: {:.2f} ({:.2f} iters/sec)'.format(
+            i + 1, perp, throuput))
+        cur_at = now
+        cur_log_perp.fill(0)
 
-if args.mean:
-    with open(args.mean, 'rb') as f:
-        image_mean = pickle.load(f)
+    if (i + 1) % jump == 0:
+        epoch += 1
+        print('evaluate')
+        now = time.time()
+        perp = evaluate(valid_data)
+        print('epoch {} validation perplexity: {:.2f}'.format(epoch, perp))
+        cur_at += time.time() - now  # skip time of evaluation
 
+        if epoch >= 6:
+            optimizer.lr /= 1.2
+            print('learning rate =', optimizer.lr)
 
-def read_image(x_name, y_name):
-    if args.ycbcr:
-        image_x = np.asarray(Image.open(x_name).convert("YCbCr").resize((WIDTH_IMG, HEIGHT_IMG)), dtype=np.float32).transpose(2, 0, 1)
-    else:
-        image_x = np.asarray(Image.open(x_name).resize((WIDTH_IMG, HEIGHT_IMG)), dtype=np.float32).transpose(2, 0, 1)
+    sys.stdout.flush()
 
-    if CONV_FLAG:
-        image_y = np.asarray(readDepthMap(y_name).resize((WIDTH_IMG, HEIGHT_IMG)), dtype=np.float32).reshape((HEIGHT_IMG, WIDTH_IMG, 1)).transpose(2, 0, 1)
-        image_y1 = np.ndarray((1, HEIGHT_Y1, WIDTH_Y1), dtype = np.float32)
-        for h in range(HEIGHT_Y1):
-            for w in range(WIDTH_Y1):
-                image_y1[0, h, w] = np.average(image_y[0, h:h + STRIDE, w:w + STRIDE])
-    else:
-        image_y = np.asarray(readDepthMap(y_name).resize((WIDTH_IMG, HEIGHT_IMG)), dtype=np.float32).reshape(-1)
-        image_y1 = None
-    if args.mean:
-        output_x = image_x - image_mean
-
-    output_x = image_x / 255
-    output_y = image_y / NORM_MAX
-    output_y1 = image_y1 / NORM_MAX
-    return (output_x, output_y, output_y1)
-
-# Data feeder
-
-
-def feed_data():
-    i = 0
-    count = 0
-
-    x_batch = np.ndarray((BATCHSIZE, 3, HEIGHT_IMG, WIDTH_IMG), dtype=np.float32)
-    val_x_batch = np.ndarray((VAL_BATCHSIZE, 3, HEIGHT_IMG, WIDTH_IMG), dtype=np.float32)
-
-    if CONV_FLAG:
-        y_batch = np.ndarray((BATCHSIZE, 1, HEIGHT_IMG, WIDTH_IMG), dtype=np.float32)
-        y1_batch = np.ndarray((BATCHSIZE, 1, HEIGHT_Y1, WIDTH_Y1), dtype=np.float32)
-        val_y_batch = np.ndarray((VAL_BATCHSIZE, 1, HEIGHT_IMG, WIDTH_IMG), dtype=np.float32)
-        val_y1_batch = np.ndarray((VAL_BATCHSIZE, 1, HEIGHT_Y1, WIDTH_Y1), dtype=np.float32)
-    else:
-        y_batch = np.ndarray((BATCHSIZE, HEIGHT_IMG * WIDTH_IMG), dtype=np.float32)
-        val_y_batch = np.ndarray((VAL_BATCHSIZE, HEIGHT_IMG * WIDTH_IMG), dtype=np.float32)
-
-    batch_pool = [None] * BATCHSIZE
-    val_batch_pool = [None] * VAL_BATCHSIZE
-    pool = multiprocessing.Pool()
-    # data_q.put('train')
-    for epoch in six.moves.range(1, 1 + N_EPOCH):
-        # print('epoch', epoch, file=sys.stderr)
-        # print('learning rate', optimizer.lr, file=sys.stderr)
-        data_q.put('train')
-        perm = np.random.permutation(len(train_list))
-        for idx in perm:
-            x_name, y_name = train_list[idx]
-            batch_pool[i] = pool.apply_async(read_image, (x_name, y_name))
-            i += 1
-
-            if i == BATCHSIZE:
-                for j, x in enumerate(batch_pool):
-                    (x_batch[j], y_batch[j], y1_batch[j]) = x.get()
-                data_q.put((x_batch.copy(), y_batch.copy(), y1_batch.copy()))
-                i = 0
-
-            count += 1
-
-        data_q.put('val')
-        j = 0
-        for x_name, y_name in val_list:
-            val_batch_pool[j] = pool.apply_async(read_image, (x_name, y_name))
-            j += 1
-
-            if j == VAL_BATCHSIZE:
-                for k, x in enumerate(val_batch_pool):
-                    (val_x_batch[k], val_y_batch[k], val_y1_batch[k]) = x.get()
-                data_q.put((val_x_batch.copy(), val_y_batch.copy(), val_y1_batch.copy()))
-                j = 0
-        # data_q.put('train')
-
-        if args.optimizer == 'msgd':
-            optimizer.lr *= 0.97
-
-    pool.close()
-    pool.join()
-    data_q.put('end')
-
-# Logger
-
-def show_progress(value, max_value):
-    MAX = 20
-    sharp_num = value * MAX / max_value
-    progress = '[' + ('#' * sharp_num) + ('-' * (20 - sharp_num)) + ']'
-    progress += '({}/{})'.format(value, max_value)
-    return progress
-
-def log_result():
-    train_count = 0
-    train_cur_loss = 0
-    epoch = 0
-
-
-    t_train_start = t_val_start = None
-    t_train = []
-    t_val = []
-    while True:
-        result = res_q.get()
-        if result == 'end':
-            t_val.append(time.time() - t_val_start)
-            add_record([epoch, t_train[epoch - 1], t_val[epoch - 1]], 'time')
-            mean_loss = val_loss * BATCHSIZE / val_count
-            mag_loss = math.log(math.sqrt(mean_loss) * NORM_MAX, 10)
-            add_record([epoch, mag_loss], 'loss')
-            print()
-            print('val mag loss :{}'.format(mag_loss))
-            print()
-            break
-        elif result == 'train':
-            if epoch > 0:
-                t_val.append(time.time() - t_val_start)
-                add_record([epoch, t_train[epoch - 1], t_val[epoch - 1]], 'time')
-                mean_loss = val_loss * BATCHSIZE / val_count
-                mag_loss = math.log(math.sqrt(mean_loss) * NORM_MAX, 10)
-                add_record([epoch, mag_loss], 'loss')
-                print()
-                print('val mag loss :{}'.format(mag_loss))
-                print()
-
-            epoch += 1
-            train = True
-            print('epoch:' + str(epoch))
-            train_count = 0
-            t_train_start = time.time()
-            continue
-        elif result == 'val':
-            t_train.append(time.time() - t_train_start)
-
-            train = False
-            print()
-            val_count = val_loss = 0
-            t_val_start = time.time()
-            continue
-
-        loss = result
-        if train:
-            train_count += BATCHSIZE
-
-            progress = '\rtrain\t' + show_progress(train_count, train_num)
-            sys.stdout.write(progress)
-            sys.stdout.flush()
-
-            train_cur_loss += loss
-
-        else:
-            val_count += VAL_BATCHSIZE
-
-            progress = '\rval\t' + show_progress(val_count, val_num)
-            sys.stdout.write(progress)
-            sys.stdout.flush()
-
-            val_loss += loss
-
-# Trainer
-
-
-def train_loop():
-    graph_generated = False
-    while True:
-        while data_q.empty():
-            time.sleep(0.1)
-        inp = data_q.get()
-        if inp == 'end':  # quit
-            res_q.put('end')
-            break
-        elif inp == 'train':  # restart training
-            res_q.put('train')
-            train = True
-            continue
-        elif inp == 'val':  # start validation
-            pickle.dump(model, open(LOGPATH + 'model', 'wb'), -1)
-            res_q.put('val')
-            train = False
-            continue
-
-
-        x = xp.asarray(inp[0])
-        y = xp.asarray(inp[1])
-        y1 = xp.asarray(inp[2])
-
-        if train:
-            optimizer.zero_grads()
-            loss = model.forward(x, y, y1, train=True)
-            loss.backward()
-            optimizer.update()
-
-        else:
-            loss = model.forward(x, y, y1, train=False)
-
-        res_q.put(float(cuda.to_cpu(loss.data)))
-        del loss, x, y, y1
-
-# Invoke threads
-feeder = threading.Thread(target=feed_data)
-feeder.daemon = True
-feeder.start()
-logger = threading.Thread(target=log_result)
-logger.daemon = True
-logger.start()
-
-train_loop()
-feeder.join()
-logger.join()
-
-# Save final model
-pickle.dump(model, open(LOGPATH + 'model', 'wb'), -1)
-
-os.rename(LOGDIRNAME, LOGDIRNAME + '_success')
-
-print(LOGDIRNAME)
+# Evaluate on test dataset
+print('test')
+test_perp = evaluate(test_data)
+print('test perplexity:', test_perp)
