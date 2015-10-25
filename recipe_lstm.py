@@ -66,14 +66,15 @@ with open(args.recipe, 'rb') as f:
 
 def load_data(text):
     words = igo_parse(text)
-    dataset = np.ndarray((len(words),), dtype=np.int32)
+    dataset = []
     for i, word in enumerate(words):
-        if word in vocab:
+        if word not in vocab:
             print('{} not in vocab'.format(word))
             continue
 
-        dataset[i] = vocab[word]
-    return dataset
+        dataset.append(vocab[word])
+    output = np.asarray(dataset, dtype=np.int32)
+    return output
 
 
 train_text = ''
