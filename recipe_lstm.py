@@ -79,7 +79,7 @@ valid_text = ''
 test_text = ''
 
 try:
-    for recipe_id for recipe_ids[:60]:
+    for recipe_id in recipe_ids[:60]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -88,7 +88,7 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 train_text = train_text + text
 
-    for recipe_id for recipe_ids[60:80]:
+    for recipe_id in recipe_ids[60:80]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -97,7 +97,7 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 valid_text = valid_text + text
 
-    for recipe_id for recipe_ids[80:90]:
+    for recipe_id in recipe_ids[80:90]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
