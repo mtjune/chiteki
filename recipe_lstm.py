@@ -221,7 +221,15 @@ for i in six.moves.range(jump * n_epoch):
             optimizer.lr /= 1.2
             print('learning rate =', optimizer.lr)
 
+        with open('result/lstm_1.model.out', 'wb') as f:
+            pickle.dump(model, f, -1)
+        print('saved')
+
     sys.stdout.flush()
+
+with open('result/lstm_1.model.out', 'wb') as f:
+    pickle.dump(model, f, -1)
+print('saved')
 
 # Evaluate on test dataset
 print('test')
