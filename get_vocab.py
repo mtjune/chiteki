@@ -21,7 +21,7 @@ def igo_parse(text):
     words = tagger.parse(text)
 
     outputs = [word.surface for word in words]
-    
+
     return outputs
 
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
                     for word in words:
                         if word not in vocab:
-                            vocab.append()
+                            vocab.append(word)
 
                     count_word += 1
 
@@ -86,5 +86,6 @@ if __name__ == '__main__':
 
     with open('result/vocab_1_b.out', 'wb') as f:
         pickle.dump(vocab, f, -1)
+
 
     print("complete!")
