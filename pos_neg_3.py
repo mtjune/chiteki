@@ -73,7 +73,7 @@ if __name__ == '__main__':
                 if count % 10000 == 0:
                     print("end: {0}/{1}".format(count, cur_length))
                 if count % 100000 == 0:
-                    pickle.dump(word_scores, open('result/word_scores_2_b.out', 'wb'), -1)
+                    pickle.dump(word_scores, open('result/word_scores_3_b.out', 'wb'), -1)
                     print("saved : {}".format(count))
                 count += 1
 
@@ -83,6 +83,6 @@ if __name__ == '__main__':
 
 
 
-    pickle.dump(word_scores, open('result/word_scores_2_b.out', 'wb'), -1)
+    pickle.dump(word_scores, open('result/word_scores_3_b.out', 'wb'), -1)
 
     print("complete!")
