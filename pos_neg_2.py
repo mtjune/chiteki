@@ -48,7 +48,7 @@ if __name__ == '__main__':
     try:
         with connection.cursor() as cursor:
 
-            sql = "select point, description from review;"
+            sql = "select distinct point, description from review;"
             print("query :", sql)
             cursor.execute(sql)
             print("query complete")
@@ -58,20 +58,21 @@ if __name__ == '__main__':
                 if not row[0] in ['0', '1', '2', '3', '4', '5']:
                     continue
                 score = float(row[0])
+                score = (score / 2.5) - 1.0
 
                 morphs = igo_parse(row[1])
                 morphs_filtered = [x[7] for x in morphs if x[1] in ["名詞", "形容詞", "副詞", "動詞"]]
 
                 for morph in morphs_filtered:
                     if morph in word_scores:
-                        word_scores[morph] += np.asarray([score, 1.0], dtype=np.float32)
+                        word_scores[morph] += score
                     else:
-                        word_scores[morph] = np.asarray([score, 1.0], dtype=np.float32)
+                        word_scores[morph] = score
 
                 if count % 10000 == 0:
                     print("end: {0}/{1}".format(count, cur_length))
                 if count % 100000 == 0:
-                    pickle.dump(word_scores, open('result/word_scores_b.out', 'wb'), -1)
+                    pickle.dump(word_scores, open('result/word_scores_2_b.out', 'wb'), -1)
                     print("saved : {}".format(count))
                 count += 1
 
@@ -81,6 +82,6 @@ if __name__ == '__main__':
 
 
 
-    pickle.dump(word_scores, open('result/word_scores_b.out', 'wb'), -1)
+    pickle.dump(word_scores, open('result/word_scores_2_b.out', 'wb'), -1)
 
     print("complete!")
