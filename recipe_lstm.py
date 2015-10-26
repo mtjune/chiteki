@@ -6,6 +6,7 @@ import math
 import sys
 import time
 import yaml
+import csv
 
 import pymysql
 
@@ -24,10 +25,24 @@ import igo
 parser = argparse.ArgumentParser()
 parser.add_argument('--vocab', '-c', default='result/vocab_dic_1_b.out')
 parser.add_argument('--recipe', '-r', default='result/recipe_ids_1_b.out')
+parser.add_argument('--model', '-m', default='result/lstm.model.out')
+parser.add_argument('--output', '-o', default='result/lstm')
 parser.add_argument('--gpu', '-g', default=-1, type=int)
 args = parser.parse_args()
 xp = cuda.cupy if args.gpu >= 0 else np
 
+
+def add_record(row_array, record_type):
+    if record_type == 'time':
+        filename = args.output + '_time.csv'
+    elif record_type == 'loss_valid':
+        filename = args.output + '_loss_valid.csv'
+    elif record_type == 'loss_train':
+        filename = args.output + '_loss_train.csv'
+
+    with open(filename, 'a') as f:
+        record = csv.writer(f, lineterminator='\n')
+        record.writerow(row_array)
 
 DIC_DIR = "/home/yamajun/workspace/tmp/igo_ipadic"
 tagger = igo.tagger.Tagger(DIC_DIR)
@@ -82,7 +97,7 @@ valid_text = ''
 test_text = ''
 
 try:
-    for recipe_id in recipe_ids[:60]:
+    for recipe_id in recipe_ids[:100]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -91,7 +106,7 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 train_text = train_text + text
 
-    for recipe_id in recipe_ids[60:80]:
+    for recipe_id in recipe_ids[100:150]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -100,7 +115,7 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 valid_text = valid_text + text
 
-    for recipe_id in recipe_ids[80:90]:
+    for recipe_id in recipe_ids[150:200]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -206,6 +221,8 @@ for i in six.moves.range(jump * n_epoch):
         perp = math.exp(cuda.to_cpu(cur_log_perp) / 1000)
         print('iter {} training perplexity: {:.2f} ({:.2f} iters/sec)'.format(
             i + 1, perp, throuput))
+        add_record([i + 1, perp], 'loss_train')
+        add_record([i + 1, now - start_at, throuput], 'time')
         cur_at = now
         cur_log_perp.fill(0)
 
@@ -215,6 +232,7 @@ for i in six.moves.range(jump * n_epoch):
         now = time.time()
         perp = evaluate(valid_data)
         print('epoch {} validation perplexity: {:.2f}'.format(epoch, perp))
+        add_record([epoch, i + 1, perp], 'loss_valid')
         cur_at += time.time() - now  # skip time of evaluation
 
         if epoch >= 6:
