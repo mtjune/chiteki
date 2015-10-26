@@ -147,7 +147,7 @@ for epoch in six.moves.range(1, n_epoch + 1):
     sum_loss = 0
 
     for i in six.moves.range(0, n_train, batchsize):
-        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.int32)
+        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.float32)
         y_batch = np.zeros((batchsize,), dtype=np.int32)
 
         for j in six.moves.range(batchsize):
@@ -171,7 +171,7 @@ for epoch in six.moves.range(1, n_epoch + 1):
     sum_accuracy = 0
     sum_loss = 0
     for i in six.moves.range(0, n_valid, batchsize):
-        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.int32)
+        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.float32)
         y_batch = np.zeros((batchsize,), dtype=np.int32)
 
         for j in six.moves.range(batchsize):
