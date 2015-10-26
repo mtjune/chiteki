@@ -105,4 +105,7 @@ if __name__ == '__main__':
     text_data = load_data(text)
     y = predict(text_data)
     y = y.reshape((-1,))
-    print(np.argmax(y))
+    ind = np.argmax(y)
+    print(ind)
+    out_text = [x[0] for x in vocab.items() if x[1] == ind][0]
+    print(out_text)
