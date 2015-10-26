@@ -120,6 +120,7 @@ if __name__ == '__main__':
         print(sentence)
 
         text = out_text
-        direct = input()
-        if direct == 'end':
-            break
+
+        if out_text == '。':
+            if input() == 'end':
+                break
