@@ -126,7 +126,7 @@ def forward(x_data, y_data, train=True):
     h = F.dropout(F.relu(model.l2(h)), train=train)
     y = model.l3(h)
 
-    return F.softmax_cross_entropy(y, t), F.accracy(y, t)
+    return F.softmax_cross_entropy(y, t), F.accuracy(y, t)
 
 
 if args.gpu >= 0:
