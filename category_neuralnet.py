@@ -29,6 +29,17 @@ args = parser.parse_args()
 xp = cuda.cupy if args.gpu >= 0 else np
 
 
+setting = None
+with open('mysql_setting.yml', 'r') as f:
+    setting = yaml.load(f)
+connection = pymysql.connect(host=setting['host'],
+                             user=setting['user'],
+                             password=setting['password'],
+                             db='rakuten_recipe',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.SSCursor)
+
+
 def add_record(row_array, record_type):
     if record_type == 'time':
         filename = args.output + '_time.csv'
