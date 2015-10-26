@@ -187,7 +187,7 @@ for epoch in six.moves.range(1, n_epoch + 1):
     valid_at = time.time()
     print('valid mean loss={}, accuracy={}'.format(sum_loss / n_valid, sum_accuracy / n_valid))
     add_record([epoch, sum_loss / n_valid, sum_accuracy / n_valid], 'loss_valid')
-    add_record([epoch, train_at - start_at, valid_at - train_at])
+    add_record([epoch, train_at - start_at, valid_at - train_at], 'time')
 
     with open(args.model, 'wb') as f:
         pickle.dump(model, f, -1)
