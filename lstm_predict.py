@@ -78,7 +78,7 @@ def forward_one_predict(x_data, state, train=False):
     c2, h2 = F.lstm(state['c2'], h2_in)
     y = model.l3(F.dropout(h2, train=train))
     state = {'c1': c1, 'h1': h1, 'c2': c2, 'h2': h2}
-    return state, y.data
+    return state, F.softmax(y).data
 
 def make_initial_state(batchsize=batchsize, train=True):
     return {name: chainer.Variable(xp.zeros((batchsize, n_units),
