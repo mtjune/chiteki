@@ -104,4 +104,4 @@ if __name__ == '__main__':
 
     text_data = load_data(text)
     y = predict(text_data)
-    print(y)
+    print(type(y))
