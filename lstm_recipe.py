@@ -25,8 +25,8 @@ import igo
 parser = argparse.ArgumentParser()
 parser.add_argument('--vocab', '-c', default='result/vocab_dic_1_b.out')
 parser.add_argument('--recipe', '-r', default='result/recipe_ids_1_b.out')
-parser.add_argument('--model', '-m', default='result/lstm_recipe.model.out')
-parser.add_argument('--output', '-o', default='result/lstm_recipe')
+parser.add_argument('--model', '-m', default='result/lstm.model.out')
+parser.add_argument('--output', '-o', default='result/lstm')
 parser.add_argument('--gpu', '-g', default=-1, type=int)
 args = parser.parse_args()
 xp = cuda.cupy if args.gpu >= 0 else np
@@ -65,7 +65,7 @@ connection = pymysql.connect(host=setting['host'],
 
 n_epoch = 39   # number of epochs
 n_units = 650  # number of units per layer
-batchsize = 20   # minibatch size
+batchsize = 10   # minibatch size
 bprop_len = 35   # length of truncated BPTT
 grad_clip = 5    # gradient norm threshold to clip
 
@@ -161,9 +161,6 @@ def forward_one_step(x_data, y_data, state, train=True):
     return state, F.softmax_cross_entropy(y, t)
 
 
-def forward_one_process(dataset, state, train=True):
-
-
 def make_initial_state(batchsize=batchsize, train=True):
     return {name: chainer.Variable(xp.zeros((batchsize, n_units),
                                             dtype=np.float32),
@@ -188,19 +185,6 @@ def evaluate(dataset):
         sum_log_perp += loss.data.reshape(())
 
     return math.exp(cuda.to_cpu(sum_log_perp) / (dataset.size - 1))
-
-
-for i in range(n_epoch):
-
-
-
-
-
-
-
-
-
-
 
 
 # Learning loop
