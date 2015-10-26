@@ -104,4 +104,5 @@ if __name__ == '__main__':
 
     text_data = load_data(text)
     y = predict(text_data)
-    print(type(y))
+    y = y.reshape((-1,))
+    print(np.argmax(y))
