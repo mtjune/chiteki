@@ -121,5 +121,5 @@ if __name__ == '__main__':
 
         text = out_text
         direct = input()
-        if direct = 'end':
+        if direct == 'end':
             break
