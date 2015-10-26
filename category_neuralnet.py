@@ -88,7 +88,7 @@ for category, recipe_ids in category_recipe_ids.items():
         train_data.append((recipe_id, categories[category]))
 
     for recipe_id in recipe_ids[700:1000]:
-        train_valid.append((recipe_id, categories[category]))
+        valid_data.append((recipe_id, categories[category]))
 
 
 n_train = len(train_data)
