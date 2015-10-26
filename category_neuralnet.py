@@ -117,7 +117,7 @@ model = chainer.FunctionSet(l1=F.Linear(len(vocab), n_units),
                             l3=F.Linear(n_units, len(categories)))
 
 
-def forward_one_step(x_data, y_data, train=True):
+def forward(x_data, y_data, train=True):
     # Neural net architecture
     x = chainer.Variable(x_data, volatile=not train)
     t = chainer.Variable(y_data, volatile=not train)
