@@ -86,15 +86,19 @@ def make_initial_state(batchsize=batchsize, train=True):
                                    volatile=not train)
             for name in ('c1', 'h1', 'c2', 'h2')}
 
-def predict(dataset):
+def predict(dataset, state=None):
     sum_log_perp = xp.zeros(())
-    state = make_initial_state(batchsize=1, train=False)
+
+    if state:
+        in_state = state
+    else:
+        in_state = make_initial_state(batchsize=1, train=False)
 
     x_batch = xp.asarray(dataset)
-    state, y = forward_one_predict(x_batch, state, train=False)
+    out_state, y = forward_one_predict(x_batch, in_state, train=False)
 
     # out_text = [x[0] for x in vocab.items() if x[1] == y]
-    return y
+    return out_state, y
 
 
 if __name__ == '__main__':
@@ -102,10 +106,20 @@ if __name__ == '__main__':
     text = input()
     print('input', text)
 
-    text_data = load_data(text)
-    y = predict(text_data)
-    y = y.reshape((-1,))
-    ind = np.argmax(y)
-    print(ind)
-    out_text = [x[0] for x in vocab.items() if x[1] == ind][0]
-    print(out_text)
+    sentence = text
+
+    state = None
+
+    while(True):
+        text_data = load_data(text)
+        state, y = predict(text_data, state)
+        y = y.reshape((-1,))
+        ind = np.argmax(y)
+        out_text = [x[0] for x in vocab.items() if x[1] == ind][0]
+        sentence += out_text
+        print(sentence)
+
+        text = out_text
+        direct = input()
+        if direct = 'end':
+            break
