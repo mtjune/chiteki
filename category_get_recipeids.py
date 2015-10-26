@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
 
     with open('result/category_recipe_ids_b.out', 'wb') as f:
-        pickle.dump(recipe_ids, f, -1)
+        pickle.dump(category_recipe_ids, f, -1)
 
 
     print("complete!")
