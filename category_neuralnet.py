@@ -108,6 +108,7 @@ n_valid = len(valid_data)
 n_epoch = 40   # number of epochs
 n_units = 800  # number of units per layer
 batchsize = 20   # minibatch size
+batchsize_valid = 100
 
 
 
@@ -170,12 +171,12 @@ for epoch in six.moves.range(1, n_epoch + 1):
     # valid
     sum_accuracy = 0
     sum_loss = 0
-    for i in six.moves.range(0, n_valid, batchsize):
-        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.float32)
-        y_batch = np.zeros((batchsize,), dtype=np.int32)
+    for i in six.moves.range(0, n_valid, batchsize_valid):
+        x_batch = np.zeros((batchsize_valid, len(vocab)), dtype=np.float32)
+        y_batch = np.zeros((batchsize_valid,), dtype=np.int32)
 
-        for j in six.moves.range(batchsize):
-            recipe_id, label = train_data[perm[i + j]]
+        for j in six.moves.range(batchsize_valid):
+            recipe_id, label = valid_data[i + j]
             x_batch[j, :] = load_data(recipe_id)
             y_batch[j] = label
 
