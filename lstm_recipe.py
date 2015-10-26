@@ -65,7 +65,7 @@ connection = pymysql.connect(host=setting['host'],
 
 n_epoch = 39   # number of epochs
 n_units = 650  # number of units per layer
-batchsize = 10   # minibatch size
+batchsize = 20   # minibatch size
 bprop_len = 35   # length of truncated BPTT
 grad_clip = 5    # gradient norm threshold to clip
 
