@@ -117,10 +117,10 @@ if __name__ == '__main__':
         ind = np.argmax(y)
         out_text = [x[0] for x in vocab.items() if x[1] == ind][0]
         sentence += out_text
-        print(sentence)
-
+        
         text = out_text
 
         if out_text == '。':
+            print(sentence)
             if input() == 'end':
                 break
