@@ -95,10 +95,10 @@ def load_data(recipe_id):
 train_data = []
 valid_data = []
 for category, recipe_ids in category_recipe_ids.items():
-    for recipe_id in recipe_ids[0:700]:
+    for recipe_id in recipe_ids[0:900]:
         train_data.append((recipe_id, categories[category]))
 
-    for recipe_id in recipe_ids[700:1000]:
+    for recipe_id in recipe_ids[900:1000]:
         valid_data.append((recipe_id, categories[category]))
 
 
@@ -108,7 +108,7 @@ n_valid = len(valid_data)
 n_epoch = 40   # number of epochs
 n_units = 800  # number of units per layer
 batchsize = 20   # minibatch size
-batchsize_valid = 100
+batchsize_valid = 50
 
 
 
