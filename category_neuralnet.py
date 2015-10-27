@@ -171,7 +171,7 @@ for epoch in six.moves.range(1, pretrain_epoch + 1):
         loss.backward()
         optimizer.update()
 
-        sum_loss += float(loss.data) * len(y_batch)
+        sum_loss += float(loss.data) * batchsize
 
 
     print('train mean loss={}'.format(sum_loss / pretrain_train))
