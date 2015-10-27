@@ -154,7 +154,7 @@ optimizer.setup(model)
 
 # Pre train
 pretrain_epoch = 10
-for epoch in six.moves.range(1, pretrain_epoch + 1)
+for epoch in six.moves.range(1, pretrain_epoch + 1):
     # training
     perm = np.random.permutation(n_train)
     sum_loss = 0
