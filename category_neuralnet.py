@@ -175,7 +175,7 @@ for epoch in six.moves.range(1, pretrain_epoch + 1):
         sum_loss += float(loss.data) * batchsize
 
 
-    print('train mean loss={}'.format(sum_loss / pretrain_eqoch))
+    print('train mean loss={}'.format(sum_loss / pretrain_epoch))
 
 
 for epoch in six.moves.range(1, n_epoch + 1):
