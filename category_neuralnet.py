@@ -119,7 +119,8 @@ batchsize_valid = 50
 # Prepare RNNLM model
 model = chainer.FunctionSet(l1=F.Linear(len(vocab), n_units),
                             l2=F.Linear(n_units, n_units),
-                            l3=F.Linear(n_units, len(categories)))
+                            l3=F.Linear(n_units, n_units),
+                            l4=F.Linear(n_units, len(categories)))
 
 
 def forward(x_data, y_data, train=True):
@@ -128,8 +129,9 @@ def forward(x_data, y_data, train=True):
     t = chainer.Variable(y_data, volatile=not train)
 
     h = F.dropout(F.relu(model.l1(x)), ratio=0.2, train=train)
-    h = F.dropout(F.relu(model.l2(h)), train=train)
-    y = model.l3(h)
+    h = F.dropout(F.relu(model.l2(x)), ratio=0.4, train=train)
+    h = F.dropout(F.relu(model.l3(h)), train=train)
+    y = model.l4(h)
 
     return F.softmax_cross_entropy(y, t), F.accuracy(y, t)
 
