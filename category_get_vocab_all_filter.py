@@ -59,7 +59,7 @@ if __name__ == '__main__':
                             vocab_set.add(n_word)
                             del vocab_count[n_word]
                     else:
-                        vocab_count = 1
+                        vocab_count[n_word] = 1
                 flag_invalid = False
 
             if flag_invalid:
