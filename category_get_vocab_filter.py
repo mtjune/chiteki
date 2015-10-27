@@ -62,7 +62,7 @@ if __name__ == '__main__':
                     if n_word not in vocab_set:
                         if n_word in vocab_count:
                             vocab_count[n_word] += 1
-                            if vocab_count[n_word] > 4:
+                            if vocab_count[n_word] > FILTER_NUM:
                                 vocab_set.add(n_word)
                                 del vocab_count[n_word]
                         else:
