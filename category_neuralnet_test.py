@@ -134,7 +134,7 @@ def forward(x_data, y_data, train=True):
     y_softed = F.softmax(y).data
     for i in range(batchsize_test):
         y_ind = np.argmax(y_softed[i, :])
-        t_ind = np.argmax(y_data[i, :])
+        t_ind = y_data[i]
         match_mat[t_ind, y_ind] += 1
 
     return F.softmax_cross_entropy(y, t), F.accuracy(y, t)
