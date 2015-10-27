@@ -74,9 +74,11 @@ with open(args.recipe, 'rb') as f:
     category_recipe_ids = pickle.load(f)
 
 
-
+count_novocab = 0
 def load_data(recipe_id):
+    global count_novocab
     output_data = np.zeros((len(vocab),), dtype=np.int32)
+    flag_novocab = True
     with connection.cursor() as cursor:
         sql = "select title from recipes where recipe_id = {};".format(recipe_id)
         cursor.execute(sql)
@@ -86,7 +88,9 @@ def load_data(recipe_id):
         for word in words:
             if word in vocab:
                 output_data[vocab[word]] = 1
-
+                flag_novocab = False
+    if flag_novocab:
+        count_novocab += 1
     return output_data
 
 
@@ -106,8 +110,8 @@ n_train = len(train_data)
 n_valid = len(valid_data)
 
 n_epoch = 40   # number of epochs
-n_units = 1000  # number of units per layer
-batchsize = 50   # minibatch size
+n_units = 500  # number of units per layer
+batchsize = 25   # minibatch size
 batchsize_valid = 50
 
 
@@ -123,7 +127,7 @@ def forward(x_data, y_data, train=True):
     x = chainer.Variable(x_data, volatile=not train)
     t = chainer.Variable(y_data, volatile=not train)
 
-    h = F.dropout(F.relu(model.l1(x)), train=train)
+    h = F.dropout(F.relu(model.l1(x)), ratio=0.2, train=train)
     h = F.dropout(F.relu(model.l2(h)), train=train)
     y = model.l3(h)
 
@@ -167,6 +171,8 @@ for epoch in six.moves.range(1, n_epoch + 1):
     train_at = time.time()
     print('train mean loss={}, accuracy={}'.format(sum_loss / n_train, sum_accuracy / n_train))
     add_record([epoch, sum_loss / n_train, sum_accuracy / n_train], 'loss_train')
+    train_novocab = count_novocab
+    count_novocab = 0
 
     # valid
     sum_accuracy = 0
@@ -189,6 +195,10 @@ for epoch in six.moves.range(1, n_epoch + 1):
     print('valid mean loss={}, accuracy={}'.format(sum_loss / n_valid, sum_accuracy / n_valid))
     add_record([epoch, sum_loss / n_valid, sum_accuracy / n_valid], 'loss_valid')
     add_record([epoch, train_at - start_at, valid_at - train_at], 'time')
+
+    valid_novocab = count_novocab
+    count_novocab = 0
+    print('train novocab : {} , valid_novocab : {}'.format(train_novocab, valid_novocab))
 
     with open(args.model, 'wb') as f:
         pickle.dump(model, f, -1)
