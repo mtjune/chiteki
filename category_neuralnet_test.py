@@ -21,7 +21,6 @@ import igo
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--vocab', '-c', default='result/category_vocab_b.out')
-parser.add_argument('--recipe', '-r', default='result/category_recipe_ids_b.out')
 parser.add_argument('--model', '-m', default='result/category.model.out')
 parser.add_argument('--output', '-o', default='result/category_test')
 parser.add_argument('--gpu', '-g', default=-1, type=int)
@@ -69,10 +68,6 @@ vocab = None
 with open(args.vocab, 'rb') as f:
     vocab = pickle.load(f)
 
-category_recipe_ids = None
-with open(args.recipe, 'rb') as f:
-    category_recipe_ids = pickle.load(f)
-
 
 
 def load_data(recipe_id):
@@ -91,13 +86,9 @@ def load_data(recipe_id):
 
 
 
-
-
-
-
 test_data = []
 with connection.cursor() as cursor:
-    sql = "select recipe_id, large_category from recipe"
+    sql = "select recipe_id, large_category from recipes"
     cursor.execute(sql)
 
     for row in cursor:
