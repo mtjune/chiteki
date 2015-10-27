@@ -106,8 +106,8 @@ n_train = len(train_data)
 n_valid = len(valid_data)
 
 n_epoch = 40   # number of epochs
-n_units = 800  # number of units per layer
-batchsize = 20   # minibatch size
+n_units = 600  # number of units per layer
+batchsize = 50   # minibatch size
 batchsize_valid = 50
 
 
