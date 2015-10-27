@@ -108,6 +108,7 @@ model = None
 with open(args.model, 'rb') as f:
     model = pickle.load(f)
 
+match_mat = np.zeros((len(categories), len(categories)), dtype=np.int32)
 
 def forward(x_data, y_data, train=True):
     # Neural net architecture
@@ -117,6 +118,12 @@ def forward(x_data, y_data, train=True):
     h = F.dropout(F.relu(model.l1(x)), train=train)
     h = F.dropout(F.relu(model.l2(h)), train=train)
     y = model.l3(h)
+
+    y_softed = F.softmax(y).data
+    for i in range(batchsize_test):
+        y_ind = np.argmax(y_softed[i, :])
+        t_ind = np.argmax(y_data[i, :])
+        match_mat[t_ind, y_ind] += 1
 
     return F.softmax_cross_entropy(y, t), F.accuracy(y, t)
 
@@ -128,11 +135,12 @@ if args.gpu >= 0:
 optimizer = optimizers.Adam()
 optimizer.setup(model)
 
+
 # test
 sum_accuracy = 0
 sum_loss = 0
-n_show = n_test // 20
 n_test_clip = (n_test // batchsize_test) * batchsize_test
+n_show = n_test_clip / batchsize_test // 20
 for i in six.moves.range(0, n_test_clip, batchsize_test):
     x_batch = np.zeros((batchsize_test, len(vocab)), dtype=np.float32)
     y_batch = np.zeros((batchsize_test,), dtype=np.int32)
@@ -147,14 +155,18 @@ for i in six.moves.range(0, n_test_clip, batchsize_test):
     sum_loss += float(loss.data) * batchsize_test
     sum_accuracy += float(acc.data) * batchsize_test
 
-    if i % n_show == 0:
+    if i % (n_show * batchsize_test ) == 0:
         print('test {} / {} mean loss={}, accuracy={}'.format(i, n_test_clip, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)))
         add_record([i, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)], 'loss_test')
 
-test_at = time.time()
-print('test end mean loss={}, accuracy={}'.format(sum_loss / n_test_clip, sum_accuracy / n_test_clip))
-add_record([n_test_clip, sum_loss / n_test_clip, sum_accuracy / n_test_clip], 'loss_test')
+        with open('category_test_mat.out', 'wb') as f:
+            pickle.dump(match_mat, f, -1)
 
+test_at = time.time()
+print('test end {} mean loss={}, accuracy={}'.format(n_test_clip, sum_loss / n_test_clip, sum_accuracy / n_test_clip))
+add_record([n_test_clip, sum_loss / n_test_clip, sum_accuracy / n_test_clip], 'loss_test')
+with open('category_test_mat.out', 'wb') as f:
+    pickle.dump(match_mat, f, -1)
 
 
 print('all end')
