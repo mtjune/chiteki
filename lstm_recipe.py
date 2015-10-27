@@ -63,10 +63,10 @@ connection = pymysql.connect(host=setting['host'],
 
 
 
-n_epoch = 39   # number of epochs
+n_epoch = 20   # number of epochs
 n_units = 650  # number of units per layer
 batchsize = 10   # minibatch size
-bprop_len = 35   # length of truncated BPTT
+bprop_len = 50   # length of truncated BPTT
 grad_clip = 5    # gradient norm threshold to clip
 
 # Prepare dataset
@@ -97,7 +97,7 @@ valid_text = ''
 test_text = ''
 
 try:
-    for recipe_id in recipe_ids[:100]:
+    for recipe_id in recipe_ids[:900]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -106,7 +106,7 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 train_text = train_text + text
 
-    for recipe_id in recipe_ids[100:150]:
+    for recipe_id in recipe_ids[900:950]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -115,7 +115,7 @@ try:
             for _, text in sorted(result, key=lambda x:x[0]):
                 valid_text = valid_text + text
 
-    for recipe_id in recipe_ids[150:200]:
+    for recipe_id in recipe_ids[950:1000]:
         with connection.cursor() as cursor:
             sql = "select position, memo from steps where recipe_id = {}".format(recipe_id)
             cursor.execute(sql)
@@ -168,7 +168,8 @@ def make_initial_state(batchsize=batchsize, train=True):
             for name in ('c1', 'h1', 'c2', 'h2')}
 
 # Setup optimizer
-optimizer = optimizers.SGD(lr=1.)
+# optimizer = optimizers.SGD(lr=1.)
+optimizer = optimizers.Adam()
 optimizer.setup(model)
 
 
@@ -235,9 +236,9 @@ for i in six.moves.range(jump * n_epoch):
         add_record([epoch, i + 1, perp], 'loss_valid')
         cur_at += time.time() - now  # skip time of evaluation
 
-        if epoch >= 6:
-            optimizer.lr /= 1.2
-            print('learning rate =', optimizer.lr)
+        # if epoch >= 6:
+        #     optimizer.lr /= 1.2
+        #     print('learning rate =', optimizer.lr)
 
         with open(args.model, 'wb') as f:
             pickle.dump(model, f, -1)
