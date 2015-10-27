@@ -119,8 +119,8 @@ batchsize_valid = 50
 # Prepare RNNLM model
 model = chainer.FunctionSet(l1=F.Linear(len(vocab), n_units),
                             l2=F.Linear(n_units, n_units),
-                            l3=F.Linear(n_units, n_units),
-                            l4=F.Linear(n_units, len(categories)))
+                            l3=F.Linear(n_units, len(categories)),
+                            lae=F.Linear(n_units, len(vocab)))
 
 
 def forward(x_data, y_data, train=True):
@@ -128,12 +128,20 @@ def forward(x_data, y_data, train=True):
     x = chainer.Variable(x_data, volatile=not train)
     t = chainer.Variable(y_data, volatile=not train)
 
-    h = F.dropout(F.relu(model.l1(x)), ratio=0.2, train=train)
-    h = F.dropout(F.relu(model.l2(h)), ratio=0.4, train=train)
-    h = F.dropout(F.relu(model.l3(h)), train=train)
-    y = model.l4(h)
+    h = F.dropout(F.relu(model.l1(x)), ratio=0.1, train=train)
+    h = F.dropout(F.relu(model.l2(h)), train=train)
+    y = model.l3(h)
 
     return F.softmax_cross_entropy(y, t), F.accuracy(y, t)
+
+def forward_ae(x_data, train=True):
+    x = chainer.Variable(x_data, volatile=not train)
+    t = x.copy()
+
+    h = F.relu(model.l1(x))
+    y = F.sigmoid(model.lae(h))
+
+    return F.mean_squared_error(y, t)
 
 
 if args.gpu >= 0:
@@ -142,6 +150,31 @@ if args.gpu >= 0:
 
 optimizer = optimizers.Adam()
 optimizer.setup(model)
+
+
+# Pre train
+pretrain_epoch = 10
+for epoch in six.moves.range(1, pretrain_epoch + 1)
+    # training
+    perm = np.random.permutation(n_train)
+    sum_loss = 0
+
+    for i in six.moves.range(0, n_train, batchsize):
+        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.float32)
+
+        for j in six.moves.range(batchsize):
+            recipe_id, label = train_data[perm[i + j]]
+            x_batch[j, :] = load_data(recipe_id)
+
+        optimizer.zero_grads()
+        loss = forward(x_batch)
+        loss.backward()
+        optimizer.update()
+
+        sum_loss += float(loss.data) * len(y_batch)
+
+
+    print('train mean loss={}, accuracy={}'.format(sum_loss / pretrain_train))
 
 
 for epoch in six.moves.range(1, n_epoch + 1):
