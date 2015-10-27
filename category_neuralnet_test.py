@@ -69,7 +69,8 @@ with open(args.vocab, 'rb') as f:
     vocab = pickle.load(f)
 
 
-
+count_invalid = 0
+count_novocab = 0
 def load_data(recipe_id):
     output_data = np.zeros((len(vocab),), dtype=np.int32)
     with connection.cursor() as cursor:
@@ -78,9 +79,18 @@ def load_data(recipe_id):
         title = cursor.fetchone()[0]
 
         words = igo_parse(title)
+        flag_invalid = True
+        flag_novocab = True
         for word in words:
+            flag_invalid = False
             if word in vocab:
+                flag_novocab = False
                 output_data[vocab[word]] = 1
+
+        if flag_invalid:
+            count_invalid += 1
+        if flag_novocab:
+            count_novocab += 1
 
     return output_data
 
@@ -162,11 +172,13 @@ for i in six.moves.range(0, n_test_clip, batchsize_test):
         with open('category_test_mat.out', 'wb') as f:
             pickle.dump(match_mat, f, -1)
 
+        print('invalid_recipe : {} , novocab_recipe : {}'.format(count_invalid, count_novocab))
+
 test_at = time.time()
 print('test end {} mean loss={}, accuracy={}'.format(n_test_clip, sum_loss / n_test_clip, sum_accuracy / n_test_clip))
 add_record([n_test_clip, sum_loss / n_test_clip, sum_accuracy / n_test_clip], 'loss_test')
 with open('category_test_mat.out', 'wb') as f:
     pickle.dump(match_mat, f, -1)
-
+print('invalid_recipe : {} , novocab_recipe : {}'.format(count_invalid, count_novocab))
 
 print('all end')
