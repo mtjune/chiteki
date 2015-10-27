@@ -56,6 +56,7 @@ if __name__ == '__main__':
 
             if count % 10000 == 0:
                 print('end {} : vocab size : {}'.format(count, len(vocab_set)))
+            count += 1
 
 
     print('end all : vocab size : {}'.format(len(vocab_set)))
