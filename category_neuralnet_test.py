@@ -72,6 +72,7 @@ with open(args.vocab, 'rb') as f:
 count_invalid = 0
 count_novocab = 0
 def load_data(recipe_id):
+    global count_invalid, count_novocab
     output_data = np.zeros((len(vocab),), dtype=np.int32)
     with connection.cursor() as cursor:
         sql = "select title from recipes where recipe_id = {};".format(recipe_id)
@@ -121,6 +122,7 @@ with open(args.model, 'rb') as f:
 match_mat = np.zeros((len(categories), len(categories)), dtype=np.int32)
 
 def forward(x_data, y_data, train=True):
+    global match_mat
     # Neural net architecture
     x = chainer.Variable(x_data, volatile=not train)
     t = chainer.Variable(y_data, volatile=not train)
