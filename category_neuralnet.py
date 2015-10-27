@@ -129,7 +129,7 @@ def forward(x_data, y_data, train=True):
     t = chainer.Variable(y_data, volatile=not train)
 
     h = F.dropout(F.relu(model.l1(x)), ratio=0.2, train=train)
-    h = F.dropout(F.relu(model.l2(x)), ratio=0.4, train=train)
+    h = F.dropout(F.relu(model.l2(h)), ratio=0.4, train=train)
     h = F.dropout(F.relu(model.l3(h)), train=train)
     y = model.l4(h)
 
