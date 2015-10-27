@@ -53,7 +53,7 @@ if __name__ == '__main__':
             flag_invalid = True
             for n_word in n_words_set:
                 if n_word not in vocab_set:
-                    if n_word in vovab_count:
+                    if n_word in vocab_count:
                         vocab_count[n_word] += 1
                         if vocab_count[n_word] > 4:
                             vocab_set.add(n_word)
