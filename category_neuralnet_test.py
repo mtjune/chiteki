@@ -148,8 +148,8 @@ for i in six.moves.range(0, n_test_clip, batchsize_test):
     sum_accuracy += float(acc.data) * batchsize_test
 
     if i % n_show == 0:
-        print('test {} / {} mean loss={}, accuracy={}'.format(i, n_test_clip, sum_loss / i + batchsize_test, sum_accuracy / i + batchsize_test))
-        add_record([i, sum_loss / i + batchsize_test, sum_accuracy / i + batchsize_test], 'loss_test')
+        print('test {} / {} mean loss={}, accuracy={}'.format(i, n_test_clip, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)))
+        add_record([i, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)], 'loss_test')
 
 test_at = time.time()
 print('test end mean loss={}, accuracy={}'.format(sum_loss / n_test_clip, sum_accuracy / n_test_clip))
