@@ -35,7 +35,7 @@ if __name__ == '__main__':
     with open('result/category_recipe_ids_b.out', 'rb') as f:
         category_recipe_ids = pickle.load(f)
 
-    FILTER_NUM = 2
+    FILTER_NUM = 1
 
     vocab_set = set()
     vocab_count = {}
