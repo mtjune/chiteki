@@ -167,7 +167,7 @@ for epoch in six.moves.range(1, pretrain_epoch + 1):
             x_batch[j, :] = load_data(recipe_id)
 
         optimizer.zero_grads()
-        loss = forward(x_batch)
+        loss = forward_ae(x_batch)
         loss.backward()
         optimizer.update()
 
