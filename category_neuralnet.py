@@ -155,6 +155,7 @@ optimizer.setup(model)
 # Pre train
 pretrain_epoch = 10
 for epoch in six.moves.range(1, pretrain_epoch + 1):
+    print('pretrain_epoch', epoch)
     # training
     perm = np.random.permutation(n_train)
     sum_loss = 0
@@ -174,7 +175,7 @@ for epoch in six.moves.range(1, pretrain_epoch + 1):
         sum_loss += float(loss.data) * batchsize
 
 
-    print('train mean loss={}'.format(sum_loss / pretrain_train))
+    print('train mean loss={}'.format(sum_loss / pretrain_eqoch))
 
 
 for epoch in six.moves.range(1, n_epoch + 1):
