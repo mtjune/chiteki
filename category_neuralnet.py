@@ -136,7 +136,7 @@ def forward(x_data, y_data, train=True):
 
 def forward_ae(x_data, train=True):
     x = chainer.Variable(x_data, volatile=not train)
-    t = x.copy()
+    t = x
 
     h = F.relu(model.l1(x))
     y = F.sigmoid(model.lae(h))
