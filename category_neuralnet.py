@@ -181,6 +181,26 @@ for epoch in six.moves.range(1, pretrain_epoch + 1):
 for epoch in six.moves.range(1, n_epoch + 1):
     print('epoch', epoch)
 
+        sum_accuracy = 0
+        sum_loss = 0
+        for i in six.moves.range(0, n_valid, batchsize_valid):
+            x_batch = np.zeros((batchsize_valid, len(vocab)), dtype=np.float32)
+            y_batch = np.zeros((batchsize_valid,), dtype=np.int32)
+
+            for j in six.moves.range(batchsize_valid):
+                recipe_id, label = valid_data[i + j]
+                x_batch[j, :] = load_data(recipe_id)
+                y_batch[j] = label
+
+            loss, acc = forward(x_batch, y_batch, train=False)
+
+            sum_loss += float(loss.data) * len(y_batch)
+            sum_accuracy += float(acc.data) * len(y_batch)
+
+        valid_at = time.time()
+        print('valid mean loss={}, accuracy={}'.format(sum_loss / n_valid, sum_accuracy / n_valid))
+
+
     start_at = time.time()
     # training
     perm = np.random.permutation(n_train)
