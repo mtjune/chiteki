@@ -153,30 +153,30 @@ optimizer.setup(model)
 
 
 # Pre train
-pretrain_epoch = 10
-for epoch in six.moves.range(1, pretrain_epoch + 1):
-    print('pretrain_epoch', epoch)
-    # training
-    perm = np.random.permutation(n_train)
-    sum_loss = 0
-
-    for i in six.moves.range(0, n_train, batchsize):
-        x_batch = np.zeros((batchsize, len(vocab)), dtype=np.float32)
-
-        for j in six.moves.range(batchsize):
-            recipe_id, label = train_data[perm[i + j]]
-            x_batch[j, :] = load_data(recipe_id)
-
-        optimizer.zero_grads()
-        loss = forward_ae(x_batch)
-        loss.backward()
-        optimizer.update()
-
-        sum_loss += float(loss.data) * batchsize
-
-
-    print('train mean loss={}'.format(sum_loss / n_train))
-
+# pretrain_epoch = 10
+# for epoch in six.moves.range(1, pretrain_epoch + 1):
+#     print('pretrain_epoch', epoch)
+#     # training
+#     perm = np.random.permutation(n_train)
+#     sum_loss = 0
+#
+#     for i in six.moves.range(0, n_train, batchsize):
+#         x_batch = np.zeros((batchsize, len(vocab)), dtype=np.float32)
+#
+#         for j in six.moves.range(batchsize):
+#             recipe_id, label = train_data[perm[i + j]]
+#             x_batch[j, :] = load_data(recipe_id)
+#
+#         optimizer.zero_grads()
+#         loss = forward_ae(x_batch)
+#         loss.backward()
+#         optimizer.update()
+#
+#         sum_loss += float(loss.data) * batchsize
+#
+#
+#     print('train mean loss={}'.format(sum_loss / n_train))
+#
 
 for epoch in six.moves.range(1, n_epoch + 1):
     print('epoch', epoch)
