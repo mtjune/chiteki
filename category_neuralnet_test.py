@@ -22,6 +22,7 @@ import igo
 parser = argparse.ArgumentParser()
 parser.add_argument('--vocab', '-c', default='result/category_vocab_b.out')
 parser.add_argument('--model', '-m', default='result/category.model.out')
+parser.add_argument('--recipe', '-r', default='result/category_recipe_ids_b.out')
 parser.add_argument('--output', '-o', default='result/category_test')
 parser.add_argument('--gpu', '-g', default=-1, type=int)
 args = parser.parse_args()
@@ -97,13 +98,23 @@ def load_data(recipe_id):
 
 
 
-test_data = []
-with connection.cursor() as cursor:
-    sql = "select recipe_id, large_category from recipes"
-    cursor.execute(sql)
+# test_data = []
+# with connection.cursor() as cursor:
+#     sql = "select recipe_id, large_category from recipes"
+#     cursor.execute(sql)
+#
+#     for row in cursor:
+#         test_data.append((row[0], categories[row[1]]))
 
-    for row in cursor:
-        test_data.append((row[0], categories[row[1]]))
+category_recipe_ids = None
+with open(args.recipe, 'rb') as f:
+    category_recipe_ids = pickle.load(f)
+
+
+test_data = []
+for category, recipe_ids in category_recipe_ids.items():
+    for recipe_id in recipe_ids[900:1000]:
+        test_data.append((recipe_id, categories[category]))
 
 
 n_test = len(test_data)
