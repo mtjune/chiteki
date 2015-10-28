@@ -94,10 +94,12 @@ def predict(dataset, state=None):
     else:
         in_state = make_initial_state(batchsize=1, train=False)
 
-    x_batch = xp.asarray(dataset)
-    out_state, y = forward_one_predict(x_batch, in_state, train=False)
+    for i in range(len(dataset)):
 
-    # out_text = [x[0] for x in vocab.items() if x[1] == y]
+        x_batch = xp.asarray(dataset[i])
+        out_state, y = forward_one_predict(x_batch, in_state, train=False)
+        in_state = out_state
+        # out_text = [x[0] for x in vocab.items() if x[1] == y]
     return out_state, y
 
 
