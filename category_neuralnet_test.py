@@ -118,10 +118,11 @@ for category, recipe_ids in category_recipe_ids.items():
 
 
 n_test = len(test_data)
+print('n_test:{}'.format(n_test))
 
 n_epoch = 40   # number of epochs
 n_units = 800  # number of units per layer
-batchsize_test = 100
+batchsize_test = 10
 
 
 
@@ -178,14 +179,14 @@ for i in six.moves.range(0, n_test_clip, batchsize_test):
     sum_loss += float(loss.data) * batchsize_test
     sum_accuracy += float(acc.data) * batchsize_test
 
-    if i % (n_show * batchsize_test ) == 0:
-        print('test {} / {} mean loss={}, accuracy={}'.format(i, n_test_clip, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)))
-        add_record([i, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)], 'loss_test')
-
-        with open('category_test_mat_2.out', 'wb') as f:
-            pickle.dump(match_mat, f, -1)
-
-        print('invalid_recipe : {} , novocab_recipe : {}'.format(count_invalid, count_novocab))
+    # if i % (n_show * batchsize_test ) == 0:
+    #     print('test {} / {} mean loss={}, accuracy={}'.format(i, n_test_clip, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)))
+    #     add_record([i, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)], 'loss_test')
+    #
+    #     with open('category_test_mat_2.out', 'wb') as f:
+    #         pickle.dump(match_mat, f, -1)
+    #
+    #     print('invalid_recipe : {} , novocab_recipe : {}'.format(count_invalid, count_novocab))
 
 test_at = time.time()
 print('test end {} mean loss={}, accuracy={}'.format(n_test_clip, sum_loss / n_test_clip, sum_accuracy / n_test_clip))
