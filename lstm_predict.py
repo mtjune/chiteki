@@ -96,7 +96,7 @@ def predict(dataset, state=None):
 
     for i in range(len(dataset)):
 
-        x_batch = xp.asarray(dataset[i])
+        x_batch = xp.asarray([dataset[i]])
         out_state, y = forward_one_predict(x_batch, in_state, train=False)
         in_state = out_state
         # out_text = [x[0] for x in vocab.items() if x[1] == y]
