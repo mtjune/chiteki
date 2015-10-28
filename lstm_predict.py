@@ -128,6 +128,7 @@ if __name__ == '__main__':
             input_text = input()
             if input_text == 'end':
                 break
-            text_data = load_data(text)
-            state, y = predict(text_data, state)
-            text = input_text
+            if input_text != ''
+                text_data = load_data(text)
+                state, y = predict(text_data, state)
+                text = input_text
