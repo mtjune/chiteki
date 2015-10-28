@@ -125,5 +125,9 @@ if __name__ == '__main__':
         if out_text == '。':
             print(sentence)
             sentence = ''
-            if input() == 'end':
+            input_text = input()
+            if input_text == 'end':
                 break
+            text_data = load_data(text)
+            state, y = predict(text_data, state)
+            text = input_text
