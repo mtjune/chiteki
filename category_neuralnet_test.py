@@ -182,7 +182,7 @@ for i in six.moves.range(0, n_test_clip, batchsize_test):
         print('test {} / {} mean loss={}, accuracy={}'.format(i, n_test_clip, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)))
         add_record([i, sum_loss / (i + batchsize_test), sum_accuracy / (i + batchsize_test)], 'loss_test')
 
-        with open('category_test_mat.out', 'wb') as f:
+        with open('category_test_mat_2.out', 'wb') as f:
             pickle.dump(match_mat, f, -1)
 
         print('invalid_recipe : {} , novocab_recipe : {}'.format(count_invalid, count_novocab))
