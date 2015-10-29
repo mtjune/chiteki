@@ -132,3 +132,4 @@ if __name__ == '__main__':
                 text_data = load_data(text)
                 state, y = predict(text_data, state)
                 text = input_text
+                sentence = input_text
